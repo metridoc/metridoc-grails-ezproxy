@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+
+    Copyright 2010 Trustees of the University of Pennsylvania Licensed under the
+    Educational Community License, Version 2.0 (the "License"); you may
+    not use this file except in compliance with the License. You may
+    obtain a copy of the License at
+
+    http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an "AS IS"
+    BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+    or implied. See the License for the specific language governing
+    permissions and limitations under the License.
+
+-->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="ezproxy-05" author="Tommy Barker" dbms="mysql,h2">
+        <comment>adds an aggregation table to count lines by file name</comment>
+        <createTable tableName="ez_lines_by_file_name">
+            <column name="id" type="int unsigned" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="source_file" type="VARCHAR(32)">
+                <constraints unique="true"/>
+            </column>
+            <column name="lines_processed" type="int unsigned"/>
+        </createTable>
+        <modifySql dbms="mysql">
+            <append value=" engine myisam DEFAULT CHARSET=utf8"/>
+        </modifySql>
+    </changeSet>
+
+    <changeSet id="ezproxy-06" author="Tommy Barker" dbms="mysql, h2">
+        <comment>
+            converts the master table to a bigint primary key, a;l columns replicate those form the
+            original master table
+        </comment>
+        <createTable tableName="ez_master_temp">
+            <column name="master_key" type="int unsigned" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="source_file_key" type="BINARY(16)" remarks="the primary key(source_file) for ez_source_file"/>
+            <column name="ref_url_key" type="BINARY(16)" remarks="primary key(ref_url) for ez_resources"/>
+            <column name="ezproxy_id_key" type="BINARY(16)" remarks="the key for ezproxy_id"/>
+            <column name="url_key" type="BINARY(16)" remarks="primary key(url) for ez_resources"/>
+            <column name="proxy_time" type="DATETIME" remarks="time exproxy query occurred"/>
+            <column name="patron_ip_key" type="BINARY(16)" remarks="primary key(patron_ip) for patron_ip"/>
+            <column name="patron_address_key" type="BINARY(16)"
+                    remarks="primary key(city, state, country) for ez_patron_address"/>
+            <column name="patron_id_key" type="BINARY(16)" remarks="primary key(patron_id) for ez_patron_id"/>
+            <column name="response_key" type="BINARY(16)"
+                    remarks="primary key(http_method, response_code, response_size) for ez_response"/>
+            <column name="agent_key" type="BINARY(16)" remarks="primary key(agent) for ez_agent"/>
+            <column name="line_num" type="INT" remarks="the line within the ezproxy file">
+                <constraints nullable="false"/>
+            </column>
+            <column name="load_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <modifySql dbms="mysql">
+            <append value=" engine myisam DEFAULT CHARSET=utf8"/>
+        </modifySql>
+    </changeSet>
+    <changeSet id="ezproxy-07" author="Tommy Barker">
+        <comment>adds indexes to the ez_master_temp table, drops ez_master and renames ez_master_temp</comment>
+        <sql>
+            insert into ez_master_temp(
+            source_file_key, ref_url_key, ezproxy_id_key, url_key,
+            proxy_time, patron_ip_key, patron_address_key, patron_id_key,
+            response_key, agent_key, line_num, load_time
+            )
+            select source_file_key, ref_url_key, ezproxy_id_key, url_key,
+            proxy_time, patron_ip_key, patron_address_key, patron_id_key,
+            response_key, agent_key, line_num, load_time
+            from ez_master
+        </sql>
+        <createIndex tableName="ez_master_temp" indexName="source_file_key2_idx">
+            <column name="source_file_key"/>
+        </createIndex>
+        <createIndex tableName="ez_master_temp" indexName="ref_url_key2_idx">
+            <column name="ref_url_key"/>
+        </createIndex>
+        <createIndex tableName="ez_master_temp" indexName="ezproxy_id_key2_idx">
+            <column name="ezproxy_id_key"/>
+        </createIndex>
+        <createIndex tableName="ez_master_temp" indexName="url_key2_idx">
+            <column name="url_key"/>
+        </createIndex>
+        <createIndex tableName="ez_master_temp" indexName="proxy_time2_idx">
+            <column name="proxy_time"/>
+        </createIndex>
+        <createIndex tableName="ez_master_temp" indexName="patron_id_key2_idx">
+            <column name="patron_id_key"/>
+        </createIndex>
+        <createIndex tableName="ez_master_temp" indexName="response_key2_idx">
+            <column name="response_key"/>
+        </createIndex>
+        <createIndex tableName="ez_master_temp" indexName="agent_key2_idx">
+            <column name="agent_key"/>
+        </createIndex>
+        <renameTable oldTableName="ez_master" newTableName="ez_master_old"/>
+        <renameTable oldTableName="ez_master_temp" newTableName="ez_master"/>
+        <dropColumn tableName="ezproxy_loading" columnName="master_key"/>
+    </changeSet>
+    <changeSet id="ezproxy_08" author="Tommy Barker">
+        <comment>adding the cookie id to the master table</comment>
+        <addColumn tableName="ez_master">
+            <column name="cookies_key" type="BINARY(16)" remarks="primary key(cookies) for ez_cookies"/>
+        </addColumn>
+        <createIndex tableName="ez_master" indexName="cookies_key2_idx">
+            <column name="cookies_key"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
