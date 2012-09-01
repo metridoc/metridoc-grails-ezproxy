@@ -30,6 +30,7 @@ allInMememoryDataSource = {
     dataSource_illiad inMemoryDataSource
     dataSource_from_illiad inMemoryDataSource
     dataSource_admin inMemoryDataSource
+    dataSource_ezproxy inMemoryDataSource
 }
 
 productionDataSourceProperties = {
@@ -71,6 +72,17 @@ environments {
         }
 
         dataSource_illiad {
+            pooled = true
+            dbCreate = "none"
+            url = "jdbc:mysql://localhost:3306/illiad"
+            driverClassName = "com.mysql.jdbc.Driver"
+            dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+            username = "root"
+            password = "password"
+            properties(productionDataSourceProperties)
+        }
+
+        dataSource_ezproxy{
             pooled = true
             dbCreate = "none"
             url = "jdbc:mysql://localhost:3306/illiad"
