@@ -19,6 +19,7 @@ grails.project.dependency.resolution = {
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
         //mavenRepo "http://repository.jboss.com/maven2/"
+        grailsRepo "https://metridoc.googlecode.com/svn/plugins/"
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
@@ -27,6 +28,10 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
+        compile (":metridoc-core:0.51-SNAPSHOT") {
+            exclude "xmlbeans"
+            changing = true
+        }
         build(":tomcat:$grailsVersion",
               ":release:2.0.3",
               ":rest-client-builder:1.0.2") {
