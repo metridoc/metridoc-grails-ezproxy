@@ -18,6 +18,7 @@ import metridoc.targets._DataSourceLoader
 import org.apache.shiro.SecurityUtils
 import static org.quartz.SimpleScheduleBuilder.*
 import static org.quartz.CronScheduleBuilder.*
+import org.apache.commons.lang.SystemUtils
 
 // config files can either be Java properties files or ConfigSlurper scripts
 
@@ -35,19 +36,21 @@ grails.views.javascript.library="jquery"
 
 def rootLoader = Thread.currentThread().contextClassLoader.rootLoader
 
-if (rootLoader) {
-    def loader = new _DataSourceLoader()
+if (new File("${SystemUtils.USER_HOME}/.grails/drivers").exists()) {
+    if (rootLoader) {
+        def loader = new _DataSourceLoader()
 
-    JobBuilder.isJob(loader)
-    loader.rootLoader = rootLoader
-    loader.grailsConsole = [
-            info: {String message ->
-                println message
-            }
-    ]
-    loader.run()
-    println "loading database drivers"
-    loader.loadDrivers()
+        JobBuilder.isJob(loader)
+        loader.rootLoader = rootLoader
+        loader.grailsConsole = [
+                info: {String message ->
+                    println message
+                }
+        ]
+        loader.run()
+        println "loading database drivers"
+        loader.loadDrivers()
+    }
 }
 
 
@@ -116,6 +119,8 @@ grails.exceptionresolver.params.exclude = ['password']
 // enable query caching by default
 grails.hibernate.cache.queries = true
 
+metridoc.app.name = appName
+
 // set per-environment serverURL stem for creating absolute links
 environments {
     development {
@@ -123,6 +128,7 @@ environments {
         grails.gsp.reload.enable = true
         grails.resources.processing.enabled = true
         grails.resources.debug = true
+
     }
     production {
         grails.logging.jul.usebridge = false
@@ -240,7 +246,7 @@ metridoc {
     scheduling {
         workflows {
             foo {
-                schedule = simpleSchedule().withIntervalInSeconds(30).repeatForever()
+                schedule = simpleSchedule().withIntervalInMinutes(30).repeatForever()
                 startNow = true
             }
         }
