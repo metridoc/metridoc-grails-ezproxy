@@ -1,3 +1,5 @@
+import metridoc.schema.SchemaRunner
+
 class MetridocEzproxyGrailsPlugin {
     // the plugin version
     def version = "0.1"
@@ -44,7 +46,7 @@ Brief summary/description of the plugin.
 
     def doWithSpring = {
         ezproxySchemaRunner(SchemaRunner) {
-            schema = "schemas/ezproxy/ezproxySchema.xml"
+            schema = "schemas/ezproxySchema.xml"
             dataSource = ref("dataSource_ezproxy")
         }
     }
