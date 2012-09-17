@@ -46,7 +46,7 @@ Brief summary/description of the plugin.
 
     def doWithSpring = {
         ezproxySchemaRunner(SchemaRunner) {
-            schema = "schemas/ezproxySchema.xml"
+            schema = "schemas/ezproxy/ezproxySchema.xml"
             dataSource = ref("dataSource_ezproxy")
         }
     }

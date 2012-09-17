@@ -89,7 +89,7 @@ environments {
         dataSource_ezproxy{
             pooled = true
             dbCreate = "none"
-            url = "jdbc:mysql://localhost:3306/illiad"
+            url = "jdbc:mysql://localhost:3306/test"
             driverClassName = "com.mysql.jdbc.Driver"
             dialect = org.hibernate.dialect.MySQL5InnoDBDialect
             username = "root"

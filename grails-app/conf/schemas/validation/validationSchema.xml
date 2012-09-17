@@ -40,4 +40,6 @@
             <column name="file_name"/>
         </createIndex>
     </changeSet>
+
+
 </databaseChangeLog>
