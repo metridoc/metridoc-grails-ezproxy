@@ -24,22 +24,13 @@ environments {
 }
 
 inMemoryDataSource = {
-    dbCreate = "none" // one of 'create', 'create-drop', 'update', 'validate', ''
+    dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
     url = "jdbc:h2:~/.metridoc/db;MVCC=TRUE"
     logSql = true
 }
 
 allInMememoryDataSource = {
-    dataSource {
-        pooled = true
-        dbCreate = "create-drop"
-        url = "jdbc:mysql://localhost:3306/test"
-        driverClassName = "com.mysql.jdbc.Driver"
-        dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-        username = "root"
-        password = "password"
-        properties(productionDataSourceProperties)
-    }
+    dataSource inMemoryDataSource
     dataSource_illiad inMemoryDataSource
     dataSource_from_illiad inMemoryDataSource
     dataSource_admin inMemoryDataSource
