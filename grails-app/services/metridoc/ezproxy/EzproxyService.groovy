@@ -6,20 +6,6 @@ class EzproxyService {
 
     def grailsApplication
     def parserText
-    final static PARSER_TEMPLATE = {parserText ->
-        """
-        class EzproxyParser {
-                def parse(line, lineNumber, fileName) {
-                    def result = [:] as TreeMap
-                    result.lineNumber = lineNumber
-                    result.fileName = fileName
-                    ${parserText}
-
-                    return result
-                }
-        }
-        """
-    }
 
     def availableFiles() {
         ezproxySampleDirectory.listFiles()
@@ -71,8 +57,8 @@ class EzproxyService {
 
     }
 
-    def buildParser(String parserText) {
-        def code = PARSER_TEMPLATE.call(parserText)
+    def buildParser(String parserText, Closure parserTemplate) {
+        def code = parserTemplate.call(parserText)
         def classLoader = Thread.currentThread().contextClassLoader
         new GroovyClassLoader(classLoader).parseClass(code).newInstance()
     }
