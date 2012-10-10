@@ -9,18 +9,7 @@
     bottom: 17px;
 }
 
-#saveEzproxyParser {
-    padding-left: 25px;
-}
 
-.delete-ezproxy-file {
-    vertical-align: middle;
-}
-
-.ezproxy-file-item {
-    vertical-align: middle;
-    font-size: 16px;
-}
 
 #ezproxyParserContainer table{
     font-size: 12px;

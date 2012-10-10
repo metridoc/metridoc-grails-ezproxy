@@ -1,49 +1,83 @@
 package metridoc.ezproxy
 
-import org.apache.commons.lang.StringUtils
-
 class EzproxyService {
 
     def grailsApplication
     def parserText
+    def parserObject
+    static final PARSER_PROPERTY = "metridoc.ezproxy.parser"
+    static final RAW_DATA_PROPERTY = "metridoc.ezproxy.rawData"
 
-    def availableFiles() {
-        ezproxySampleDirectory.listFiles()
+    def getRawSampleData() {
+        def propertyDomain = EzProperties.find {
+            propertyName == RAW_DATA_PROPERTY
+        }
+
+        if(propertyDomain) {
+            return propertyDomain.propertyValue
+        }
+
+        return null
     }
 
-    def getEzproxySampleDirectory() {
-        def directory = grailsApplication.mergedConfig.metridoc.ezproxy.directory
-        assert directory: "the metridoc.ezproxy.directory property MUST be specified"
-        def file = new File(directory)
-        createDirectory(file)
-        def sampleDirectory = new File("${file.canonicalPath}/samples")
-        createDirectory(sampleDirectory)
+    def getRawParser() {
+        def propertyDomain = EzProperties.find {
+            propertyName == PARSER_PROPERTY
+        }
 
-        return sampleDirectory
+        if(propertyDomain) {
+            return propertyDomain.propertyValue
+        }
+
+        return null
     }
 
-    def createDirectory(directory) {
-        if (!directory.exists()) {
-            assert directory.mkdirs(): "Could not create the ezproxy directory at $directory"
+    def updateParser(parserText) {
+        def propertyDomain = EzProperties.find {
+            propertyName == PARSER_PROPERTY
+        }
+
+        if(propertyDomain) {
+            propertyDomain.propertyValue = parserText
+        } else {
+            new EzProperties(propertyName: PARSER_PROPERTY, propertyValue: parserText).save()
         }
     }
 
-    def getParser() {
+    //TODO: use dry to clean this up
+    def updateSampleData(rawData) {
+        def propertyDomain = EzProperties.find {
+            propertyName == RAW_DATA_PROPERTY
+        }
+
+        if(propertyDomain) {
+            propertyDomain.propertyValue = rawData
+        } else {
+            new EzProperties(propertyName: RAW_DATA_PROPERTY, propertyValue: rawData).save()
+        }
+    }
+
+    def hasParser() {
         EzProperties.find {
-            propertyName == "metridoc.ezproxy.parser"
-        }
+            propertyName == PARSER_PROPERTY
+        } ? true : false
+    }
+
+    def hasData() {
+        EzProperties.find {
+            propertyName == RAW_DATA_PROPERTY
+        } ? true : false
     }
 
     def getParsedData() {
-        def parserText = parser.propertyValue
 
-        def parserObject = buildParser(parserText)
+        def parserObject = getParserObject()
         def results = [:]
         results.rows = []
         results.headers = []
 
-        ["foo", "blah", "blammo", "blockblammofooaaaaaalkjdalksjadslkjasldkjaslkdjalksjdlakjsdlkjasldkjalksjdlakjsdlkajsdlkjasldkjalskjdlahsdflkjahsdflkjhasdflkhjasdfkljhasdflkjhasdlfkjhasdlkfjhaslkdfhjlkajhdsflkjhasdflkjhasdlfkjhbar"].each {
-            def row = parserObject.parse(it, 5, "foobar") as Map
+        getRawSampleData().eachLine {line, lineNumber ->
+            def row = parserObject.parse(line, lineNumber+1, "ezproxy.file") as Map
             if (!results.headers) {
                 results.headers = row.keySet()
             }
@@ -53,8 +87,23 @@ class EzproxyService {
         return results
     }
 
-    def getParsedData(File file, int startLine) {
+    def getParserObject() {
 
+        def storedText = EzProperties.find {
+            propertyName == PARSER_PROPERTY
+        }.propertyValue
+
+        if(shouldRebuildParser(storedText)) {
+            parserText = storedText
+            rebuildParser(storedText)
+        }
+
+        return parserObject
+    }
+
+    def rebuildParser(String parserText) {
+        def parserTemplate = grailsApplication.mergedConfig.metridoc.ezproxy.ezproxyParserTemplate
+        parserObject = buildParser(parserText, parserTemplate)
     }
 
     def buildParser(String parserText, Closure parserTemplate) {
@@ -66,4 +115,6 @@ class EzproxyService {
     def shouldRebuildParser(String storedparser) {
         parserText != storedparser
     }
+
+
 }

@@ -7,35 +7,35 @@
 --%>
 
 <md:report module="ezproxy">
-    <md:header>General Settings</md:header>
 
-    <md:header>Upload Sample Ezproxy Files</md:header>
-    <g:uploadForm method="post" action="save">
-        <input type="file" name="file">
-        <span class=buttons>
-            <input type="submit">
-        </span>
-    </g:uploadForm>
 
-    <g:each in="${availableFiles}" var="file">
-        <div class="ezproxy-file-item">
-            ${file.name}
-            <g:remoteLink action="deleteFile" params="[fileToDelete: file.name]" onComplete="window.location.reload()">
-                <g:img plugin="metridoc-core" dir="images/skin" file="process-stop.png" class="delete-ezproxy-file"/>
-            </g:remoteLink>
-        </div>
-    </g:each>
 
-    <br/>
-    <md:header>Ezproxy Parser</md:header>
+
+
     <span id="ezproxyParserContainer">
-        <g:formRemote method="POST" name="saveEzproxyParser" url="[action: 'updateEzproxyParser']">
+        <g:formRemote method="POST" name="saveEzproxyParser" url="[action: 'updateEzproxyParser']" onComplete="window.location.reload()">
+            <md:header>Paste Sample Ezproxy Data</md:header>
+            <textarea id="rawEzproxyData" class="ui-widget-content code-box"
+                      name="rawEzproxyData">${rawSampleData}</textarea>
+            <md:header>Ezproxy Parser</md:header>
             <textarea id="ezproxyParserCode" class="ui-widget-content code-box"
                       name="ezproxyParserScript">${ezproxyParser}</textarea>
-            <g:render template="testData" plugin="metridoc-ezproxy" model="${params}"/>
-            <span class="buttons">
-                <g:actionSubmit value="Save"/>
-            </span>
+
+            <g:if test="${parseException}">
+                <div class="ui-widget">
+                    <div class="ui-state-error ui-corner-all" style="padding: 0 0.7em;">
+                        <pre>${parseException}</pre>
+                    </div>
+                </div>
+            </g:if>
+            <g:else>
+                <g:render template="testData" plugin="metridoc-ezproxy" model="${params}"/>
+            </g:else>
+            <br/>
+            <div class="buttons">
+                <g:actionSubmit value="Update"/>
+            </div>
+
         </g:formRemote>
     </span>
 
