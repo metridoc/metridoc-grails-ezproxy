@@ -1,0 +1,40 @@
+.code-box {
+    width: 850px;
+    height: 150px;
+    padding: 0.5em;
+    font-size: 12px;
+}
+
+.ui-resizable-se {
+    bottom: 17px;
+}
+
+#saveEzproxyParser {
+    padding-left: 25px;
+}
+
+.delete-ezproxy-file {
+    vertical-align: middle;
+}
+
+.ezproxy-file-item {
+    vertical-align: middle;
+    font-size: 16px;
+}
+
+#ezproxyParserContainer table{
+    font-size: 12px;
+    table-layout: fixed;
+    width: 200%;
+}
+
+#ezproxyParserContainer table td{
+    overflow: hidden; /* this is what fixes the expansion */
+    text-overflow: ellipsis; /* not supported in all browsers, but I accepted the tradeoff */
+    white-space: nowrap;
+}
+
+#ezproxyData {
+    overflow:auto;
+
+}

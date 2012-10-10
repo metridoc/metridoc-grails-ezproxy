@@ -30,11 +30,20 @@ inMemoryDataSource = {
 }
 
 allInMememoryDataSource = {
-    dataSource inMemoryDataSource
+    dataSource {
+        pooled = true
+        dbCreate = "create-drop"
+        url = "jdbc:mysql://localhost:3306/test"
+        driverClassName = "com.mysql.jdbc.Driver"
+        dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+        username = "root"
+        password = "password"
+        properties(productionDataSourceProperties)
+    }
     dataSource_illiad inMemoryDataSource
     dataSource_from_illiad inMemoryDataSource
     dataSource_admin inMemoryDataSource
-    dataSource_ezproxy inMemoryDataSource
+
 }
 
 productionDataSourceProperties = {
