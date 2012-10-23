@@ -1,12 +1,20 @@
 package metridoc.ezproxy
 
+import static org.apache.commons.lang.SystemUtils.*
+
 class EzproxyService {
 
     def grailsApplication
     def parserText
     def parserObject
+    def parserException
     static final PARSER_PROPERTY = "metridoc.ezproxy.parser"
     static final RAW_DATA_PROPERTY = "metridoc.ezproxy.rawData"
+    static final EZPROXY_DIRECTORY_PROPERTY = "metridoc.ezproxy.directory"
+    static final DEFAULT_EZPROXY_DIRECTORY = "${USER_HOME}${FILE_SEPARATOR}.metridoc${FILE_SEPARATOR}files${FILE_SEPARATOR}ezproxy"
+    static final CHARSET = "utf-8"
+    static final DEFAULT_FILE_FILTER = /ezproxy\.log\.\d{8}\.gz/
+    static final FILE_FILTER_PROPERTY = "metridoc.ezproxy.fileFilter"
 
     def getRawSampleData() {
         def propertyDomain = EzProperties.find {
@@ -88,14 +96,19 @@ class EzproxyService {
     }
 
     def getParserObject() {
-
+        parserException = null
         def storedText = EzProperties.find {
             propertyName == PARSER_PROPERTY
         }.propertyValue
 
         if(shouldRebuildParser(storedText)) {
             parserText = storedText
-            rebuildParser(storedText)
+            try {
+                rebuildParser(storedText)
+            } catch (Throwable t) {
+                parserText = null
+                throw t
+            }
         }
 
         return parserObject
@@ -116,5 +129,53 @@ class EzproxyService {
         parserText != storedparser
     }
 
+    def getEzproxyFiles() {
+        def result = []
 
+        new File(getEzproxyDirectory()).listFiles().each {
+            if(it.isFile()) {
+                def filter = getEzproxyFileFilter()
+                if(it.name ==~ filter) {
+                    result << it
+                }
+            }
+        }
+
+        return result
+    }
+
+    def getEzproxyFileFilter() {
+        getEzproxyProperty(FILE_FILTER_PROPERTY, DEFAULT_FILE_FILTER)
+    }
+
+    def getEzproxyDirectory() {
+        getEzproxyProperty(EZPROXY_DIRECTORY_PROPERTY, DEFAULT_EZPROXY_DIRECTORY)
+    }
+
+    def getEzproxyProperty(String propertyName, String defaultValue) {
+        return getEzproxyPropertyObject(propertyName, defaultValue).propertyValue
+    }
+
+    def getEzproxyPropertyObject(String propertyName, String defaultValue) {
+        def property = EzProperties.findByPropertyName(propertyName)
+        if(property) {
+            return property
+        } else {
+            property = new EzProperties(propertyName: propertyName, propertyValue: defaultValue)
+            property.save(flush: true)
+        }
+
+        return property
+    }
+
+    def updateFileFilter(String newFileFilter) {
+        log.info "updating file filter to $newFileFilter"
+        getEzproxyPropertyObject(FILE_FILTER_PROPERTY, DEFAULT_FILE_FILTER).propertyValue = newFileFilter
+    }
+
+    def updateDirectory(String newEzproxyDirectory) {
+        log.info "updating ezproxy directory to $newEzproxyDirectory"
+        getEzproxyPropertyObject(EZPROXY_DIRECTORY_PROPERTY, DEFAULT_EZPROXY_DIRECTORY).propertyValue = newEzproxyDirectory
+    }
 }
+

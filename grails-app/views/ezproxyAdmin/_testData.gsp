@@ -6,7 +6,8 @@
   To change this template use File | Settings | File Templates.
 --%>
 
-<div id="ezproxyData"><table>
+<div class="ezproxyData">
+    <table id="ezproxyTestData">
     <thead>
     <g:each in="${headers}" var="header">
         <th>${header}</th>

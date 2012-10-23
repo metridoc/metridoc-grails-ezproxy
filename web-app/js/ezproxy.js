@@ -5,7 +5,14 @@ $(function() {
             });
         }
     )
+
+    $("#ezproxyEditors").buttonset()
+
+
+
 });
+
+
 
 $('#ezproxyData tbody td').each(function(index){
     $this = $(this);
@@ -14,3 +21,4 @@ $('#ezproxyData tbody td').each(function(index){
         $this.attr('title', titleVal);
     }
 });
+

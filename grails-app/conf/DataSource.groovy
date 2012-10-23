@@ -13,14 +13,11 @@
  * permissions and limitations under the License.
  */
 
-environments {
-    production {
-        hibernate {
-            cache.use_second_level_cache = true
-            cache.use_query_cache = false
-            cache.region.factory_class = 'net.sf.ehcache.hibernate.EhCacheRegionFactory'
-        }
-    }
+hibernate {
+    cache.use_second_level_cache = false
+    cache.use_query_cache = false
+    cache.region.factory_class = 'net.sf.ehcache.hibernate.EhCacheRegionFactory'
+    jdbc.batch_size = 5000
 }
 
 inMemoryDataSource = {
@@ -30,10 +27,29 @@ inMemoryDataSource = {
 }
 
 allInMememoryDataSource = {
-    dataSource inMemoryDataSource
+    dataSource {
+        pooled = true
+        dbCreate = "update"
+        url = "jdbc:mysql://localhost:3306/ezproxy"
+        driverClassName = "com.mysql.jdbc.Driver"
+        dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+        username = "root"
+        password = "password"
+        properties(productionDataSourceProperties)
+    }
+
+    dataSource_admin {
+        pooled = true
+        dbCreate = "none"
+        url = "jdbc:mysql://localhost:3306/test"
+        driverClassName = "com.mysql.jdbc.Driver"
+        dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+        username = "root"
+        password = "password"
+        properties(productionDataSourceProperties)
+    }
     dataSource_illiad inMemoryDataSource
     dataSource_from_illiad inMemoryDataSource
-    dataSource_admin inMemoryDataSource
 }
 
 productionDataSourceProperties = {
@@ -85,7 +101,7 @@ environments {
             properties(productionDataSourceProperties)
         }
 
-        dataSource_ezproxy{
+        dataSource_ezproxy {
             pooled = true
             dbCreate = "none"
             url = "jdbc:mysql://localhost:3306/test"

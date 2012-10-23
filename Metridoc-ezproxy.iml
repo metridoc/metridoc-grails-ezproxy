@@ -38,6 +38,7 @@
       <sourceFolder url="file://$MODULE_DIR$/test/integration" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/grails-app/jobs" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/grails-app/realms" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/grails-app/workflows" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target/classes" />
       <excludeFolder url="file://$MODULE_DIR$/target/test-classes" />
     </content>
@@ -121,9 +122,9 @@
         <jarDirectory url="file://$MODULE_DIR$/lib" recursive="false" />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="grails-2.1.0" level="application" />
+    <orderEntry type="library" name="grails-2.1.0" level="application" />
     <orderEntry type="module" module-name="Metridoc-ezproxy-grailsPlugins" />
-    <orderEntry type="library" name="grails-2.1.0" level="application" />
-    <orderEntry type="library" name="grails-2.1.0" level="application" />
   </component>
 </module>
 

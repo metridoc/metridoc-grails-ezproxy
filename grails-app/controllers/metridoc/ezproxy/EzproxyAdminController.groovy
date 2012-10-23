@@ -1,18 +1,27 @@
 package metridoc.ezproxy
 
-import org.apache.maven.artifact.ant.shaded.ExceptionUtils
-
 class EzproxyAdminController {
 
     def ezproxyService
 
     def index() {
+        return getBasicModel()
+    }
+
+    private getBasicModel() {
         def model = [
                 rawSampleData: ezproxyService.rawSampleData,
-                ezproxyParser: ezproxyService.rawParser
+                ezproxyParser: ezproxyService.rawParser,
+                ezproxyFiles: ezproxyService.ezproxyFiles,
+                ezproxyDirectory:  ezproxyService.ezproxyDirectory,
+                ezproxyFileFilter: ezproxyService.ezproxyFileFilter
         ]
 
-        if (ezproxyService.hasParser() && ezproxyService.hasData()) {
+        if (ezproxyService.parserException) {
+
+            model << [parseException: ezproxyService.parserException]
+
+        } else if (ezproxyService.hasParser() && ezproxyService.hasData()) {
             def parsedData
             try {
                 parsedData = ezproxyService.parsedData
@@ -23,7 +32,7 @@ class EzproxyAdminController {
                 ]
             } catch(Throwable throwable) {
                 log.error "error occurred parsing ezproxy", throwable
-                model << [parseException: ExceptionUtils.getStackTrace(throwable).encodeAsHTML()]
+                model << [parseException: throwable]
             }
         }
 
@@ -37,13 +46,25 @@ class EzproxyAdminController {
             log.warn "there was no ezproxy script to save"
         }
 
+        if (params.ezproxyFileRegex) {
+            ezproxyService.updateFileFilter(params.ezproxyFileRegex)
+        } else {
+            log.warn "there was no file filter to store, parameters are ${params}"
+        }
+
+        if (params.ezproxyDirectory) {
+            ezproxyService.updateDirectory(params.ezproxyDirectory)
+        } else {
+            log.warn "there was no directory specified"
+        }
+
         if (params.rawEzproxyData) {
             ezproxyService.updateSampleData(params.rawEzproxyData)
         } else {
             log.warn "there was no ezproxy data to save"
         }
 
-        redirect(action: "index")
+        render(view: "index", model: getBasicModel())
     }
 
 
@@ -53,6 +74,14 @@ class EzproxyAdminController {
                 headers: ezproxyService.parsedData.headers,
                 rows: ezproxyService.parsedData.rows
         ]
+    }
+
+    def listFiles() {
+        [
+                ezproxyFiles: ezproxyService.ezproxyFiles,
+                ezproxyDirectory: ezproxyService.ezproxyDirectory
+        ]
+
     }
 }
 
