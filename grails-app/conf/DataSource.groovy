@@ -27,16 +27,7 @@ inMemoryDataSource = {
 }
 
 allInMememoryDataSource = {
-    dataSource {
-        pooled = true
-        dbCreate = "update"
-        url = "jdbc:mysql://localhost:3306/ezproxy"
-        driverClassName = "com.mysql.jdbc.Driver"
-        dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-        username = "root"
-        password = "password"
-        properties(productionDataSourceProperties)
-    }
+    dataSource inMemoryDataSource
 
     dataSource_admin {
         pooled = true
