@@ -1,6 +1,7 @@
 package metridoc.ezproxy
 
 import static org.apache.commons.lang.SystemUtils.*
+import grails.util.Holders
 
 class EzproxyService {
 
@@ -15,6 +16,16 @@ class EzproxyService {
     static final CHARSET = "utf-8"
     static final DEFAULT_FILE_FILTER = /ezproxy\.log\.\d{8}\.gz/
     static final FILE_FILTER_PROPERTY = "metridoc.ezproxy.fileFilter"
+    static datasource
+    static {
+        def grailsApplication = Holders.grailsApplication
+
+        if (grailsApplication) {
+            if(grailsApplication.mergedConfig.dataSource_ezproxy) {
+                datasource = 'ezproxy'
+            }
+        }
+    }
 
     def getRawSampleData() {
         def propertyDomain = EzProperties.find {
@@ -136,7 +147,14 @@ class EzproxyService {
             if(it.isFile()) {
                 def filter = getEzproxyFileFilter()
                 if(it.name ==~ filter) {
-                    result << it
+                    def logLine = EzproxyLog.findAllByFileName(it.name, [max:1])
+                    def itemToAdd = [file:it]
+                    if(logLine) {
+                        itemToAdd.done = true
+                    } else {
+                        itemToAdd.done = false
+                    }
+                    result << itemToAdd
                 }
             }
         }

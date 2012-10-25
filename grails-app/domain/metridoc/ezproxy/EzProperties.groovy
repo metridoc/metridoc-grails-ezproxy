@@ -1,5 +1,7 @@
 package metridoc.ezproxy
 
+import grails.util.Holders
+
 class EzProperties {
 
     Date dateCreated
@@ -7,6 +9,14 @@ class EzProperties {
     String propertyValue
 
     static mapping = {
+        def grailsApplication = Holders.grailsApplication
+
+        if (grailsApplication) {
+            if(grailsApplication.mergedConfig.dataSource_ezproxy) {
+                datasource('ezproxy')
+            }
+        }
+
         propertyValue type: "text"
     }
 

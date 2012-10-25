@@ -19,31 +19,33 @@ class MetridocEzproxyBootStrap {
     def pluginManager
 
     def init = { servletContext ->
-        def template = """
-            class EzMantle {
-                String name
-                int age
-            }
-        """
+    //TODO:this is here for future reference when we have to do dynamic domain objects
 
-        def clazz = new DynamicClassLoader().parseClass(template)
-        def domainPlugin = pluginManager.getGrailsPlugin("domainClass")
-        def hibernatePlugin = pluginManager.getGrailsPlugin("hibernate")
-        def rawDomainPlugin = domainPlugin.pluginBean.wrappedInstance
-        def rawHibernatePlugin = hibernatePlugin.pluginBean.wrappedInstance
-
-        def event = [
-                application: grailsApplication,
-                manager: pluginManager,
-                source: clazz,
-                ctx: grailsApplication.mainContext,
-                plugin:domainPlugin
-        ]
-
-        rawDomainPlugin.onChange.delegate = domainPlugin
-        rawHibernatePlugin.onChange.delegate = hibernatePlugin
-        rawDomainPlugin.onChange.call(event)
-        rawHibernatePlugin.onChange.call(event)
+//        def template = """
+//            class EzMantle {
+//                String name
+//                int age
+//            }
+//        """
+//
+//        def clazz = new DynamicClassLoader().parseClass(template)
+//        def domainPlugin = pluginManager.getGrailsPlugin("domainClass")
+//        def hibernatePlugin = pluginManager.getGrailsPlugin("hibernate")
+//        def rawDomainPlugin = domainPlugin.pluginBean.wrappedInstance
+//        def rawHibernatePlugin = hibernatePlugin.pluginBean.wrappedInstance
+//
+//        def event = [
+//                application: grailsApplication,
+//                manager: pluginManager,
+//                source: clazz,
+//                ctx: grailsApplication.mainContext,
+//                plugin:domainPlugin
+//        ]
+//
+//        rawDomainPlugin.onChange.delegate = domainPlugin
+//        rawHibernatePlugin.onChange.delegate = hibernatePlugin
+//        rawDomainPlugin.onChange.call(event)
+//        rawHibernatePlugin.onChange.call(event)
     }
     def destroy = {
     }

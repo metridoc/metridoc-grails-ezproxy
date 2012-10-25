@@ -1,5 +1,7 @@
 package metridoc.ezproxy
 
+import grails.util.Holders
+
 class EzproxyLog {
 
     Date dateCreated
@@ -16,6 +18,16 @@ class EzproxyLog {
     Boolean doi
     Boolean pmid
     Boolean sfx
+
+    static mapping = {
+        def grailsApplication = Holders.grailsApplication
+
+        if (grailsApplication) {
+            if(grailsApplication.mergedConfig.dataSource_ezproxy) {
+                datasource('ezproxy')
+            }
+        }
+    }
 
     static constraints = {
         fileName: index: 'idx_ez_log_file_name'
