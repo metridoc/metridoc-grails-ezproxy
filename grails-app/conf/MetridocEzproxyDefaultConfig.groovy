@@ -14,7 +14,20 @@ metridoc {
                         result.lineNumber = lineNumber
                         result.fileName = fileName
                         ${parserText}
+                        result.pmid = false
+                        result.doi = false
+                        def url = result.url ? result.url : ""
+                        def refUrl = result.refUrl ? result.refUrl : ""
 
+                        if(url.contains("pmid") || refUrl.contains("pmid")) {
+                            result.pmid = true
+                        }
+
+                        if(url.contains("doi") || refUrl.contains("doi")) {
+                            result.doi = true
+                        }
+
+                        result.archive = result.pmid || result.doi
                         return result
                     }
             }
