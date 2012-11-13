@@ -4,6 +4,14 @@ class EzproxyAdminController {
 
     def ezproxyService
 
+    static homePage = [
+            title: "Ezproxy Admin Panel",
+            adminOnly: true,
+            description: """
+                Creates the parser and sets the general setting for Ezproxy
+            """
+    ]
+
     def index() {
         return getBasicModel()
     }
@@ -13,7 +21,7 @@ class EzproxyAdminController {
                 rawSampleData: ezproxyService.rawSampleData,
                 ezproxyParser: ezproxyService.rawParser,
                 ezproxyFiles: ezproxyService.ezproxyFiles,
-                ezproxyDirectory:  ezproxyService.ezproxyDirectory,
+                ezproxyDirectory: ezproxyService.ezproxyDirectory,
                 ezproxyFileFilter: ezproxyService.ezproxyFileFilter
         ]
 
@@ -30,7 +38,7 @@ class EzproxyAdminController {
                         headers: parsedData.headers,
                         rows: parsedData.rows
                 ]
-            } catch(Throwable throwable) {
+            } catch (Throwable throwable) {
                 log.error "error occurred parsing ezproxy", throwable
                 model << [parseException: throwable]
             }

@@ -36,7 +36,7 @@ class EzproxyService {
             return propertyDomain.propertyValue
         }
 
-        return null
+        return grailsApplication.mergedConfig.metridoc.ezproxy.sampleLog
     }
 
     def getRawParser() {
@@ -48,7 +48,7 @@ class EzproxyService {
             return propertyDomain.propertyValue
         }
 
-        return null
+        return grailsApplication.mergedConfig.metridoc.ezproxy.sampleParser
     }
 
     def updateParser(parserText) {
