@@ -3,6 +3,9 @@ package metridoc.ezproxy
 import static org.apache.commons.lang.SystemUtils.*
 import grails.util.Holders
 
+/**
+ * base ezproxy service that handles maintaining / storing parsers and raw data
+ */
 class EzproxyService {
 
     def grailsApplication
@@ -147,7 +150,7 @@ class EzproxyService {
             if(it.isFile()) {
                 def filter = getEzproxyFileFilter()
                 if(it.name ==~ filter) {
-                    def logLine = EzproxyLog.findAllByFileName(it.name, [max:1])
+                    def logLine = EzproxyEvent.findAllByFileName(it.name, [max:1])
                     def itemToAdd = [file:it]
                     if(logLine) {
                         itemToAdd.done = true
