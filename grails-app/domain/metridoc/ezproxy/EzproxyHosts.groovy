@@ -2,7 +2,7 @@ package metridoc.ezproxy
 
 import grails.util.Holders
 
-class EzproxyLog {
+class EzproxyHosts {
 
     Date dateCreated
     String ipAddress
@@ -12,19 +12,8 @@ class EzproxyLog {
     String state
     String country
     String city
-    String hashUrl
-    String hashRefUrl
-    String url
-    String refUrl
-    String httpMethod
-    Integer httpStatus
+    String UrlHost
     String ezproxyId
-
-    Boolean archive
-    Boolean doi
-    Boolean pmid
-    Boolean login
-    Boolean forceArchive
 
     static mapping = {
         def grailsApplication = Holders.grailsApplication
@@ -40,11 +29,6 @@ class EzproxyLog {
         country(index: 'idx_ez_log_country')
         state(index: 'idx_ez_log_state')
         city(index: 'idx_ez_log_city')
-        hashRefUrl(index: 'idx_ez_log_hashrefurl')
-        hashUrl(index: 'idx_ez_log_hashurl')
-        doi(index: 'idx_ez_doi')
-        pmid(index: 'idx_ez_pmid')
-        login(index: 'idx_ez_login')
     }
 
     static constraints = {
@@ -56,11 +40,6 @@ class EzproxyLog {
         country(maxSize: 50, nullable: true)
         state(maxSize: 50, nullable: true)
         city(maxSize: 50, nullable: true)
-        url(size: 1..Integer.MAX_VALUE)
-        refUrl(size: 1..Integer.MAX_VALUE)
-        hashRefUrl(maxSize: 64)
-        hashUrl(maxSize: 64)
-        httpMethod(maxSize: 10)
         ezproxyId(maxSize: 50)
     }
 }
