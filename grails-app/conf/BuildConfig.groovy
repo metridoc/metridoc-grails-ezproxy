@@ -24,9 +24,9 @@ grails.project.dependency.resolution = {
         grailsRepo "https://metridoc.googlecode.com/svn/plugins/"
     }
     dependencies {
-        // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-
-        // runtime 'mysql:mysql-connector-java:5.1.18'
+        build("org.tmatesoft.svnkit:svnkit:1.3.5") {
+            excludes "jna", "trilead-ssh2", "sqljet"
+        }
     }
 
     plugins {
@@ -34,6 +34,7 @@ grails.project.dependency.resolution = {
             exclude "xmlbeans"
             changing = true
         }
+
         build(":tomcat:$grailsVersion",
               ":release:2.0.3",
               ":rest-client-builder:1.0.2") {

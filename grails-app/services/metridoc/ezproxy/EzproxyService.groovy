@@ -20,6 +20,7 @@ class EzproxyService {
     static final DEFAULT_FILE_FILTER = /ezproxy\.log\.\d{8}\.gz/
     static final FILE_FILTER_PROPERTY = "metridoc.ezproxy.fileFilter"
     static datasource
+
     static {
         def grailsApplication = Holders.grailsApplication
 

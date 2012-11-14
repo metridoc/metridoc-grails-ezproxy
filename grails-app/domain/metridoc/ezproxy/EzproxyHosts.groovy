@@ -5,6 +5,10 @@ import grails.util.Holders
 class EzproxyHosts {
 
     Date dateCreated
+    Date proxyDate
+    int proxyMonth
+    int proxyYear
+    int proxyDay
     String ipAddress
     String fileName
     Integer lineNumber
@@ -12,8 +16,13 @@ class EzproxyHosts {
     String state
     String country
     String city
-    String UrlHost
+    String urlHost
     String ezproxyId
+    Boolean valid = true
+    String validationError
+    String dept
+    String organization
+    String rank
 
     static mapping = {
         def grailsApplication = Holders.grailsApplication
@@ -24,11 +33,17 @@ class EzproxyHosts {
             }
         }
 
-        fileName(index: 'idx_ez_log_file_name')
-        patronId(index: 'idx_ez_log_patron_id')
-        country(index: 'idx_ez_log_country')
-        state(index: 'idx_ez_log_state')
-        city(index: 'idx_ez_log_city')
+        fileName(index: 'idx_ez_hosts_file_name')
+        patronId(index: 'idx_ez_hosts_patron_id')
+        country(index: 'idx_ez_hosts_country')
+        state(index: 'idx_ez_hosts_state')
+        city(index: 'idx_ez_hosts_city')
+        ezproxyId(index:  "idx_ez_hosts_ezproxy_id")
+        valid(index:  "idx_ez_hosts_valid")
+        urlHost(index:  "idx_ez_hosts_url_host")
+        dept(index: "idx_ez_hosts_dept")
+        organization(index: "idx_ez_organization")
+        rank(index: "idx_rank")
     }
 
     static constraints = {
@@ -41,5 +56,11 @@ class EzproxyHosts {
         state(maxSize: 50, nullable: true)
         city(maxSize: 50, nullable: true)
         ezproxyId(maxSize: 50)
+        validationError(maxSize: 500, nullable: true)
+        dept(nullable: true)
+        rank(nullable: true)
+        organization(nullable: true)
+        urlHost(unique: ["ezproxyId"])
+        lineNumber(unique: ["fileName"])
     }
 }
