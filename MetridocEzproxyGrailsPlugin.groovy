@@ -1,4 +1,3 @@
-import metridoc.schema.SchemaRunner
 
 class MetridocEzproxyGrailsPlugin {
     // the plugin version

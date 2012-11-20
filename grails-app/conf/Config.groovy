@@ -13,12 +13,8 @@
  * permissions and limitations under the License.
  */
 
-import metridoc.dsl.JobBuilder
-import metridoc.targets._DataSourceLoader
-import org.apache.shiro.SecurityUtils
-import static org.quartz.SimpleScheduleBuilder.*
-import static org.quartz.CronScheduleBuilder.*
 import org.apache.commons.lang.SystemUtils
+import org.slf4j.LoggerFactory
 
 // config files can either be Java properties files or ConfigSlurper scripts
 
@@ -36,20 +32,16 @@ grails.views.javascript.library="jquery"
 
 def rootLoader = Thread.currentThread().contextClassLoader.rootLoader
 
-if (new File("${SystemUtils.USER_HOME}/.grails/drivers").exists()) {
+def driverDirectory = new File("${SystemUtils.USER_HOME}/.grails/drivers")
+if (driverDirectory.exists() && driverDirectory.isDirectory()) {
     if (rootLoader) {
-        def loader = new _DataSourceLoader()
-
-        JobBuilder.isJob(loader)
-        loader.rootLoader = rootLoader
-        loader.grailsConsole = [
-                info: {String message ->
-                    println message
-                }
-        ]
-        loader.run()
-        println "loading database drivers"
-        loader.loadDrivers()
+        driverDirectory.eachFile {
+            if (it.name.endsWith(".jar")) {
+                def url = it.toURI().toURL()
+                LoggerFactory.getLogger("config.Config").info "adding driver ${url}" as String
+                rootLoader.addURL(url)
+            }
+        }
     }
 }
 
@@ -189,66 +181,7 @@ grails.doc.subtitle = " "
 
 grails.doc.title = "MetriDoc User Manual"
 
-metridoc {
-    security {
-
-        //steps: checks for custom, checks if anonymous, then does fallback
-
-        anonymous = ["illiad", "logout", "auth", "counter", "sushi", "home"]
-
-        fallback = {
-            return role("ROLE_ADMIN") //|| ipIn("<ip group name>")
-        }
-
-        custom {
-            //based on controller name
-            //counter = {.....}
-            profile = {
-
-                def userName = SecurityUtils.subject.principal as String
-
-                if ("anonymous" == userName) {
-                    return false
-                }
-                return true
-            }
-        }
-    }
-}
 
 //sets the layout for all pages
 metridoc.style.layout = "main"
 
-metridoc {
-    style {
-        home {
-            layout {
-                //if the app exists a link will be added under the name available applications
-                availableApplications {
-                    illiad = "Illiad Dashboards"
-                    counter = "Counter Reports"
-                    sushi = "Sushi Tester"
-                    fallback = "No applications available"
-                }
-
-                administration {
-                    user = "Manage Users"
-                    profile = "User Profile"
-                    jenkins = "Install Jenkins"
-                    role = "Manage Roles"
-                }
-            }
-        }
-    }
-}
-
-metridoc {
-    scheduling {
-        workflows {
-            foo {
-                schedule = simpleSchedule().withIntervalInMinutes(30).repeatForever()
-                startNow = true
-            }
-        }
-    }
-}
