@@ -55,7 +55,8 @@ class EzproxyHostsFileService extends GormEzproxyFileService<EzproxyHosts> {
                 lineNumber: -1,
                 fileName: "ERROR",
                 ezproxyId: "ERROR",
-                proxyDate : new Date(Long.MIN_VALUE)
+                proxyDate : new Date(Long.MIN_VALUE),
+                processed: false
         )
     }
 

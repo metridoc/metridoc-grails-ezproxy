@@ -1,8 +1,6 @@
 package metridoc.ezproxy
 
-import grails.util.Holders
-
-class EzproxyHosts {
+class EzproxyHosts extends EzproxyBase<EzproxyHosts>{
 
     Date dateCreated
     Date proxyDate
@@ -23,16 +21,9 @@ class EzproxyHosts {
     String dept
     String organization
     String rank
+    Boolean processed
 
     static mapping = {
-        def grailsApplication = Holders.grailsApplication
-
-        if (grailsApplication) {
-            if(grailsApplication.mergedConfig.dataSource_ezproxy) {
-                datasource('ezproxy')
-            }
-        }
-
         fileName(index: 'idx_ez_hosts_file_name')
         patronId(index: 'idx_ez_hosts_patron_id')
         country(index: 'idx_ez_hosts_country')
@@ -44,6 +35,7 @@ class EzproxyHosts {
         dept(index: "idx_ez_hosts_dept")
         organization(index: "idx_ez_organization")
         rank(index: "idx_rank")
+        tablePerHierarchy(false)
     }
 
     static constraints = {
@@ -62,5 +54,20 @@ class EzproxyHosts {
         organization(nullable: true)
         urlHost(unique: ["ezproxyId"])
         lineNumber(unique: ["fileName"])
+    }
+
+    @Override
+    EzproxyHosts createInstance(Map record) {
+        return null  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    EzproxyHosts createDefaultInvalidRecord(Map record) {
+        return null  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    boolean accept(Map record) {
+        return false  //To change body of implemented methods use File | Settings | File Templates.
     }
 }

@@ -46,6 +46,7 @@ abstract class GormEzproxyFileService<T> implements EzproxyFileService {
             def transformedRecord = transformRecord(record)
             addDateParameters(record)
             def gormRecord = getGormClass().newInstance(transformedRecord)
+            gormRecord.processed = false
             boolean valid = gormRecord.validate()
             if(!valid) {
                 handleValidationError(gormRecord)

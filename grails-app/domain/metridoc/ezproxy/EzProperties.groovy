@@ -9,14 +9,6 @@ class EzProperties {
     String propertyValue
 
     static mapping = {
-        def grailsApplication = Holders.grailsApplication
-
-        if (grailsApplication) {
-            if(grailsApplication.mergedConfig.dataSource_ezproxy) {
-                datasource('ezproxy')
-            }
-        }
-
         propertyValue type: "text"
     }
 

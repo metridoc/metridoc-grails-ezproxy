@@ -68,7 +68,7 @@ class EzproxyHostsFileServiceTests {
     void "by default EzproxyHosts is not valid"() {
         def hosts = new EzproxyHosts()
         hosts.validate()
-        assert 6 == hosts.errors.errorCount
+        assert 7 == hosts.errors.errorCount
     }
 
     @Test
