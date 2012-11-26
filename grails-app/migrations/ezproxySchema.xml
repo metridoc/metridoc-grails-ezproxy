@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+    <changeSet author="tbarker (generated)" id="1353955188562-1">
+        <createTable tableName="ez_properties">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_created" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="property_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="property_value" type="LONGTEXT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="tbarker (generated)" id="1353955188562-2">
+        <createTable tableName="ezproxy_base">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="class" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="city" type="VARCHAR(50)"/>
+            <column name="country" type="VARCHAR(50)"/>
+            <column name="date_created" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="dept" type="VARCHAR(255)"/>
+            <column name="ezproxy_id" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="file_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ip_address" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="line_number" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="organization" type="VARCHAR(255)"/>
+            <column name="patron_id" type="VARCHAR(64)"/>
+            <column name="processed" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="proxy_date" type="DATETIME">
+                <constraints nullable="false"/>
+            </column>
+            <column name="proxy_day" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="proxy_month" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="proxy_year" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rank" type="VARCHAR(255)"/>
+            <column name="state" type="VARCHAR(50)"/>
+            <column name="url_host" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="valid" type="BIT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="validation_error" type="VARCHAR(500)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="tbarker (generated)" id="1353955188562-3">
+        <createIndex indexName="ezproxy_id" tableName="ezproxy_base" unique="true">
+            <column name="ezproxy_id"/>
+            <column name="url_host"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="tbarker (generated)" id="1353955188562-4">
+        <createIndex indexName="file_name" tableName="ezproxy_base" unique="true">
+            <column name="file_name"/>
+            <column name="line_number"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="tbarker (generated)" id="1353955188562-5">
+        <createIndex indexName="idx_ez_hosts_city" tableName="ezproxy_base" unique="false">
+            <column name="city"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="tbarker (generated)" id="1353955188562-6">
+        <createIndex indexName="idx_ez_hosts_country" tableName="ezproxy_base" unique="false">
+            <column name="country"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="tbarker (generated)" id="1353955188562-7">
+        <createIndex indexName="idx_ez_hosts_dept" tableName="ezproxy_base" unique="false">
+            <column name="dept"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="tbarker (generated)" id="1353955188562-8">
+        <createIndex indexName="idx_ez_hosts_ezproxy_id" tableName="ezproxy_base" unique="false">
+            <column name="ezproxy_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="tbarker (generated)" id="1353955188562-9">
+        <createIndex indexName="idx_ez_hosts_file_name" tableName="ezproxy_base" unique="false">
+            <column name="file_name"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="tbarker (generated)" id="1353955188562-10">
+        <createIndex indexName="idx_ez_hosts_patron_id" tableName="ezproxy_base" unique="false">
+            <column name="patron_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="tbarker (generated)" id="1353955188562-11">
+        <createIndex indexName="idx_ez_hosts_state" tableName="ezproxy_base" unique="false">
+            <column name="state"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="tbarker (generated)" id="1353955188562-12">
+        <createIndex indexName="idx_ez_hosts_url_host" tableName="ezproxy_base" unique="false">
+            <column name="url_host"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="tbarker (generated)" id="1353955188562-13">
+        <createIndex indexName="idx_ez_hosts_valid" tableName="ezproxy_base" unique="false">
+            <column name="valid"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="tbarker (generated)" id="1353955188562-14">
+        <createIndex indexName="idx_ez_organization" tableName="ezproxy_base" unique="false">
+            <column name="organization"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="tbarker (generated)" id="1353955188562-15">
+        <createIndex indexName="idx_rank" tableName="ezproxy_base" unique="false">
+            <column name="rank"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

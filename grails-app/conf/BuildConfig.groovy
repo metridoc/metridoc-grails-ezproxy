@@ -30,6 +30,7 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
+        runtime ":database-migration:1.2"
         compile (":metridoc-core:0.52-SNAPSHOT") {
             exclude "xmlbeans"
             changing = true
