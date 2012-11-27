@@ -34,22 +34,14 @@ productionDataSourceProperties = {
 environments {
     development {
         dataSource {
-            dbCreate = "none" // one of 'create', 'create-drop', 'update', 'validate', ''
-            url = "jdbc:mysql://localhost:3306/ezproxy"
-            username = "root"
-            password = "password"
-            driverClassName = "com.mysql.jdbc.Driver"
-            dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+            dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
+            url = "jdbc:h2:mem:devEzproxy;MVCC=TRUE;LOCK_TIMEOUT=10000"
             logSql = true
         }
 
         dataSource_admin {
             dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
-            url = "jdbc:mysql://localhost:3306/admin"
-            username = "root"
-            password = "password"
-            driverClassName = "com.mysql.jdbc.Driver"
-            dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+            url = "jdbc:h2:mem:devAdmin;MVCC=TRUE;LOCK_TIMEOUT=10000"
             logSql = true
         }
     }
