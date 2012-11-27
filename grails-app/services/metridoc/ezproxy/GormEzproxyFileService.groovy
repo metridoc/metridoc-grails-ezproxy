@@ -2,31 +2,38 @@ package metridoc.ezproxy
 
 import org.springframework.util.StringUtils
 
-abstract class GormEzproxyFileService<T> implements EzproxyFileService {
+class GormEzproxyFileService implements EzproxyFileService {
 
     def ezproxyService
-    abstract Class<T> getGormClass()
-    abstract boolean accept(Map<String, Object> record)
-    abstract Map transformRecord(Map<String, Object> record)
-    abstract T getNewDefaultRecord(T objectWithValidationError)
+    def grailsApplication
+    private List<Class<EzproxyBase>> _gormClasses = []
 
-    void handleValidationError(T object) {
-        def error = object.errors.fieldErrors[0]
-        def message =  "Field error in object '" + error.objectName + "' on field '" + error.field +
-                "': rejected value [" + error.rejectedValue + "]; codes: ${StringUtils.arrayToDelimitedString(error.codes, ",")}"
-        def invalidResult = getNewDefaultRecord(object)
+    List<EzproxyBase> getGormClasses() {
+        if(_gormClasses) return _gormClasses
 
-        if(object.fileName) {
-            invalidResult.fileName = object.fileName
+        grailsApplication.domainClasses.each {
+            def clazz = it.clazz
+            if(clazz == EzproxyHosts) {
+                _gormClasses << clazz
+            }
         }
 
-        if(object.lineNumber) {
-            invalidResult.lineNumber = object.lineNumber
+        return _gormClasses
+    }
+
+    void handleValidationError(EzproxyHosts object) {
+        if (object.errors.fieldErrorCount) {
+            def error = object.errors.fieldErrors[0]
+            def message =  "Field error in object '" + error.objectName + "' on field '" + error.field +
+                    "': rejected value [" + error.rejectedValue + "]; codes: ${StringUtils.arrayToDelimitedString(error.codes, ",")}"
+            object.createDefaultInvalidRecord()
+            def invalidResult = object.createDefaultInvalidRecord(object)
+
+            invalidResult.validationError = message
+            invalidResult.save(failOnError: true)
+        } else {
+            object.save(failOnError: true)
         }
-
-        invalidResult.validationError = message
-
-        invalidResult.save(failOnError: true)
     }
 
     @Override
@@ -42,28 +49,20 @@ abstract class GormEzproxyFileService<T> implements EzproxyFileService {
     }
 
     protected void process(Map<String, Object> record) {
-        if(accept(record)) {
-            def transformedRecord = transformRecord(record)
-            addDateParameters(record)
-            def gormRecord = getGormClass().newInstance(transformedRecord)
-            gormRecord.processed = false
-            boolean valid = gormRecord.validate()
-            if(!valid) {
-                handleValidationError(gormRecord)
-            } else {
-                gormRecord.save(failOnError: true)
+
+        gormClasses.each {Class<EzproxyBase> ezBase ->
+            def gormRecord = ezBase.newInstance()
+            if (gormRecord.accept(record)) {
+                gormRecord.loadValues(record)
+                boolean valid = gormRecord.validate()
+                if (!valid) {
+                    handleValidationError(gormRecord)
+                } else {
+                    gormRecord.save(failOnError: true)
+                }
             }
         }
     }
 
-    protected void addDateParameters(Map<String, Object> record) {
-        def proxyDate = record.proxyDate
-        if (proxyDate) {
-            def calendar = new GregorianCalendar()
-            calendar.setTime(proxyDate)
-            record.proxyMonth = calendar.get(Calendar.MONTH) + 1
-            record.proxyYear = calendar.get(Calendar.YEAR)
-            record.proxyDay = calendar.get(Calendar.DAY_OF_MONTH)
-        }
-    }
+
 }

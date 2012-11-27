@@ -8,11 +8,32 @@ package metridoc.ezproxy
  * To change this template use File | Settings | File Templates.
  */
 abstract class EzproxyBase<T extends EzproxyBase> {
-//    static mapping = {
-//        tablePerHierarchy(false)
-//    }
+    Date dateCreated
+    Date proxyDate
+    int proxyMonth
+    int proxyYear
+    int proxyDay
+    String ipAddress
+    String fileName
+    Integer lineNumber
+    String patronId
+    String state
+    String country
+    String city
+    String urlHost
+    String refUrlHost
+    String url
+    String refUrl
+    String ezproxyId
+    Boolean valid = true
+    String validationError
+    String dept
+    String organization
+    String rank
 
-    abstract T createInstance(Map record)
-    abstract T createDefaultInvalidRecord(Map record)
+
+
+    abstract void loadValues(Map record)
+    abstract void createDefaultInvalidRecord()
     abstract boolean accept(Map record)
 }
