@@ -8,6 +8,10 @@ package metridoc.ezproxy
  * To change this template use File | Settings | File Templates.
  */
 abstract class EzproxyBase<T extends EzproxyBase> {
+//    static mapping = {
+//        tablePerHierarchy(false)
+//    }
+
     abstract T createInstance(Map record)
     abstract T createDefaultInvalidRecord(Map record)
     abstract boolean accept(Map record)
