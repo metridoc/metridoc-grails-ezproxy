@@ -19,9 +19,9 @@ class EzproxyHostsTests {
 
     @Test
     void "the default invalid record should be valid"() {
-        ezproxyHosts.createDefaultInvalidRecord()
-        ezproxyHosts.validate()
-        assert ezproxyHosts.errors.allErrors.size() == 0
+        def invalidRecord = ezproxyHosts.createDefaultInvalidRecord()
+        invalidRecord.validate()
+        assert invalidRecord.errors.allErrors.size() == 0
     }
 
     @Test

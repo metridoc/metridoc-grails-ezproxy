@@ -114,15 +114,17 @@ class EzproxyService {
         parserException = null
         def storedText = EzProperties.find {
             propertyName == PARSER_PROPERTY
-        }.propertyValue
+        }?.propertyValue
 
-        if(shouldRebuildParser(storedText)) {
-            parserText = storedText
-            try {
-                rebuildParser(storedText)
-            } catch (Throwable t) {
-                parserText = null
-                throw t
+        if (storedText) {
+            if(shouldRebuildParser(storedText)) {
+                parserText = storedText
+                try {
+                    rebuildParser(storedText)
+                } catch (Throwable t) {
+                    parserText = null
+                    throw t
+                }
             }
         }
 
@@ -151,7 +153,7 @@ class EzproxyService {
             if(it.isFile()) {
                 def filter = getEzproxyFileFilter()
                 if(it.name ==~ filter) {
-                    def logLine = EzproxyEvent.findAllByFileName(it.name, [max:1])
+                    def logLine = EzproxyHosts.findAllByFileName(it.name, [max:1])
                     def itemToAdd = [file:it]
                     if(logLine) {
                         itemToAdd.done = true

@@ -1,11 +1,13 @@
 package metridoc.ezproxy
 
+import org.apache.commons.lang.math.RandomUtils
+
 class EzproxyHosts extends EzproxyBase<EzproxyHosts> {
 
     static final ONE_TO_ONE_PROPERTIES = ["patronId", "ipAddress", "lineNumber", "state", "country", "city", "ezproxyId", "proxyDate", "fileName", "url", "refUrl"]
-    Map<String, Set<String>> hostsByEzproxyId = [:]
+    static Map<String, Set<String>> hostsByEzproxyId = Collections.synchronizedMap([:])
 
-    static transients = [ "hostsByEzproxyId", "url", "refUrl"]
+    static transients = ["hostsByEzproxyId", "url", "refUrl"]
     static mapping = {
         fileName(index: 'idx_ez_hosts_file_name')
         patronId(index: 'idx_ez_hosts_patron_id')
@@ -31,7 +33,7 @@ class EzproxyHosts extends EzproxyBase<EzproxyHosts> {
         state(maxSize: 50, nullable: true)
         city(maxSize: 50, nullable: true)
         ezproxyId(maxSize: 50)
-        validationError(maxSize: 500, nullable: true)
+        validationError(maxSize: Integer.MAX_VALUE, nullable: true)
         dept(nullable: true)
         rank(nullable: true)
         organization(nullable: true)
@@ -67,15 +69,17 @@ class EzproxyHosts extends EzproxyBase<EzproxyHosts> {
     }
 
     @Override
-    void createDefaultInvalidRecord() {
-        ipAddress = "ERROR"
-        urlHost = "ERROR"
-        url = "ERROR"
-        valid = false
-        lineNumber = lineNumber ?: -1
-        fileName = fileName ?: "ERROR"
-        ezproxyId = "ERROR"
-        proxyDate = new Date(Long.MIN_VALUE)
+    def createDefaultInvalidRecord() {
+        new EzproxyHosts(
+                ipAddress : "ERROR",
+                urlHost : "ERROR-${RandomUtils.nextInt(100000)}",
+                url : "ERROR",
+                valid : false,
+                lineNumber : lineNumber ?: -1,
+                fileName : fileName ?: "ERROR",
+                ezproxyId : "ERROR",
+                proxyDate : new Date()
+        )
 
     }
 
@@ -93,20 +97,32 @@ class EzproxyHosts extends EzproxyBase<EzproxyHosts> {
         }
 
         def alreadyProcessed = false
-        if(hasUrl) {
+        if (hasUrl && hasEzproxyId) {
             def host = url.host
-            alreadyProcessed = hostsByEzproxyId[ezproxyId] ? hostsByEzproxyId[ezproxyId].contains(host) : false
-            if(!alreadyProcessed) {
+            def localHostsByEzproxyId = hostsByEzproxyId
+            alreadyProcessed = localHostsByEzproxyId[ezproxyId] ? localHostsByEzproxyId[ezproxyId].contains(host) : false
+            if (!alreadyProcessed) {
                 alreadyProcessed = EzproxyHosts.findByEzproxyIdAndUrlHost(ezproxyId, host) ? true : false
-                def hostSet = hostsByEzproxyId[ezproxyId]
-                if(hostSet == null) {
-                    hostsByEzproxyId[ezproxyId] = [] as Set
-                    hostSet = hostsByEzproxyId[ezproxyId]
+                def hostSet = localHostsByEzproxyId[ezproxyId]
+                if (hostSet == null) {
+                    localHostsByEzproxyId[ezproxyId] = [] as Set
+                    hostSet = localHostsByEzproxyId[ezproxyId]
                 }
 
                 hostSet.add(host)
             }
         }
-        return hasEzproxyId && hasUrl && !alreadyProcessed
+        def result = hasEzproxyId && hasUrl && !alreadyProcessed
+
+        if (result) {
+            if (log.isDebugEnabled()) {
+                log.debug "record ${record} has been accepted"
+            }
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug "record ${record} has been rejected"
+            }
+        }
+        return result
     }
 }

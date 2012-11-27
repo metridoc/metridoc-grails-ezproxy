@@ -21,28 +21,6 @@ class EzproxyServiceTests {
     }
 
     @Test
-    void "the parser should take care of doi and pmid events, along with setting the archive flag if the event contains those"() {
-        def slurper = new ConfigSlurper()
-        def clazz = ClassUtils.forName("MetridocEzproxyDefaultConfig")
-        def configObject = slurper.parse(clazz)
-        def template = configObject.metridoc.ezproxy.ezproxyParserTemplate
-        def result = service.buildParser("", template).parse("foobar", 2, "bar")
-        assert result.doi == false
-        assert result.pmid == false
-        assert result.archive == false
-
-        result = service.buildParser("result.url = 'pmid'", template).parse("foobar", 2, "bar")
-        assert result.doi == false
-        assert result.pmid == true
-        assert result.archive == true
-
-        result = service.buildParser("result.url = 'doi'", template).parse("foobar", 2, "bar")
-        assert result.doi == true
-        assert result.pmid == false
-        assert result.archive == true
-    }
-
-    @Test
     void "creating a parser to parse data should be executable"() {
         def template = {parserText ->
             """

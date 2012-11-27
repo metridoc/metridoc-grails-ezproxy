@@ -1,6 +1,7 @@
 package metridoc.ezproxy
 
 import org.springframework.util.StringUtils
+import java.util.zip.GZIPInputStream
 
 class GormEzproxyFileService implements EzproxyFileService {
 
@@ -25,12 +26,13 @@ class GormEzproxyFileService implements EzproxyFileService {
         if (object.errors.fieldErrorCount) {
             def error = object.errors.fieldErrors[0]
             def message =  "Field error in object '" + error.objectName + "' on field '" + error.field +
-                    "': rejected value [" + error.rejectedValue + "]; codes: ${StringUtils.arrayToDelimitedString(error.codes, ",")}"
-            object.createDefaultInvalidRecord()
-            def invalidResult = object.createDefaultInvalidRecord(object)
+                    "': rejected value [" + error.rejectedValue + "]"
+            def invalidRecord = object.createDefaultInvalidRecord()
 
-            invalidResult.validationError = message
-            invalidResult.save(failOnError: true)
+
+            invalidRecord.validationError = message
+            invalidRecord.save(failOnError: true)
+            log.warn "saved invalid record ${object} for file ${object.fileName} at line ${object.lineNumber}"
         } else {
             object.save(failOnError: true)
         }
@@ -42,9 +44,20 @@ class GormEzproxyFileService implements EzproxyFileService {
     }
 
     void processFile(File file, parser) {
-        file.eachLine("utf-8") {String line, int lineNumber ->
-            def record = parser.parse(line, lineNumber, file.name)
-            process(record)
+
+        def stream = new FileInputStream(file)
+        if(file.name.endsWith(".gz")) {
+            stream = new GZIPInputStream(stream)
+        }
+
+        stream.eachLine("utf-8") {String line, int lineNumber ->
+            try {
+                def record = parser.parse(line, lineNumber, file.name)
+                process(record)
+            } catch (Throwable throwable) {
+                log.error "error occurred for file $file at line $lineNumber with line $line", throwable
+                throw throwable
+            }
         }
     }
 
@@ -59,7 +72,17 @@ class GormEzproxyFileService implements EzproxyFileService {
                     handleValidationError(gormRecord)
                 } else {
                     gormRecord.save(failOnError: true)
+                    if (log.isDebugEnabled()) {
+                        log.debug "saved record ${gormRecord} for file ${gormRecord.fileName} and line ${gormRecord.lineNumber}"
+                    }
                 }
+            }
+
+            def lineNumber = record.lineNumber
+            def fileName = record.fileName
+
+            if(lineNumber % 10000 == 0) {
+                log.info "$lineNumber lines have been processed for file $fileName"
             }
         }
     }

@@ -34,6 +34,6 @@ abstract class EzproxyBase<T extends EzproxyBase> {
 
 
     abstract void loadValues(Map record)
-    abstract void createDefaultInvalidRecord()
+    abstract def createDefaultInvalidRecord()
     abstract boolean accept(Map record)
 }
