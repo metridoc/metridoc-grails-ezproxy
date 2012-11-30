@@ -33,7 +33,7 @@ grails.project.dependency.resolution = {
     plugins {
         runtime ":database-migration:1.2"
 
-        provided(":metridoc-core:0.52-SNAPSHOT") {
+        compile(":metridoc-core:0.52-SNAPSHOT") {
             excludes "shiro-quartz"
         }
 
