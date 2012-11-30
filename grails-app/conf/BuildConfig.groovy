@@ -24,6 +24,7 @@ grails.project.dependency.resolution = {
         grailsRepo "https://metridoc.googlecode.com/svn/plugins/"
     }
     dependencies {
+        //this is only needed to make things work in intellij, it won't be included in the built war or running application
         build("org.tmatesoft.svnkit:svnkit:1.3.5") {
             excludes "jna", "trilead-ssh2", "sqljet"
         }
@@ -31,14 +32,14 @@ grails.project.dependency.resolution = {
 
     plugins {
         runtime ":database-migration:1.2"
-        compile (":metridoc-core:0.52-SNAPSHOT") {
-            exclude "xmlbeans"
-            changing = true
+
+        provided(":metridoc-core:0.52-SNAPSHOT") {
+            excludes "shiro-quartz"
         }
 
         build(":tomcat:$grailsVersion",
-              ":release:2.0.3",
-              ":rest-client-builder:1.0.2") {
+                ":release:2.0.3",
+                ":rest-client-builder:1.0.2") {
             export = false
         }
     }
