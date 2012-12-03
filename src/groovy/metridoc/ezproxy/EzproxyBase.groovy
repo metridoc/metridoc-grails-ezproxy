@@ -26,6 +26,7 @@ abstract class EzproxyBase<T extends EzproxyBase> {
     String refUrl
     String ezproxyId
     Boolean valid = true
+    Boolean error = false
     String validationError
     String dept
     String organization

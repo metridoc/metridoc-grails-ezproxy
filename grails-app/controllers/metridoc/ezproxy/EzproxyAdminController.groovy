@@ -5,9 +5,9 @@ class EzproxyAdminController {
     def ezproxyService
 
     static homePage = [
-            title: "Ezproxy Admin Panel",
-            adminOnly: true,
-            description: """
+        title: "Ezproxy Admin Panel",
+        adminOnly: true,
+        description: """
                 Creates the parser and sets the general setting for Ezproxy
             """
     ]
@@ -18,11 +18,11 @@ class EzproxyAdminController {
 
     private getBasicModel() {
         def model = [
-                rawSampleData: ezproxyService.rawSampleData,
-                ezproxyParser: ezproxyService.rawParser,
-                ezproxyFiles: ezproxyService.ezproxyFiles,
-                ezproxyDirectory: ezproxyService.ezproxyDirectory,
-                ezproxyFileFilter: ezproxyService.ezproxyFileFilter
+            rawSampleData: ezproxyService.rawSampleData,
+            ezproxyParser: ezproxyService.rawParser,
+            ezproxyFiles: ezproxyService.ezproxyFiles,
+            ezproxyDirectory: ezproxyService.ezproxyDirectory,
+            ezproxyFileFilter: ezproxyService.ezproxyFileFilter
         ]
 
         if (ezproxyService.parserException) {
@@ -34,9 +34,9 @@ class EzproxyAdminController {
             try {
                 parsedData = ezproxyService.parsedData
                 model << [
-                        ezproxyTestData: parsedData,
-                        headers: parsedData.headers,
-                        rows: parsedData.rows
+                    ezproxyTestData: parsedData,
+                    headers: parsedData.headers,
+                    rows: parsedData.rows
                 ]
             } catch (Throwable throwable) {
                 log.error "error occurred parsing ezproxy", throwable
@@ -79,17 +79,38 @@ class EzproxyAdminController {
 
     def testData() {
         [
-                headers: ezproxyService.parsedData.headers,
-                rows: ezproxyService.parsedData.rows
+            headers: ezproxyService.parsedData.headers,
+            rows: ezproxyService.parsedData.rows
         ]
     }
 
     def listFiles() {
         [
-                ezproxyFiles: ezproxyService.ezproxyFiles,
-                ezproxyDirectory: ezproxyService.ezproxyDirectory
+            ezproxyFiles: ezproxyService.ezproxyFiles,
+            ezproxyDirectory: ezproxyService.ezproxyDirectory
         ]
 
+    }
+
+    def deleteFileData() {
+        def fileName = params.id
+        if (fileName) {
+            log.info "attempting to delete data for ezproxy file $params.id"
+            //TODO: need to generalize to be used against all ezproxy implementations
+            def ezproxyHosts = EzproxyHosts.findAllByFileName(fileName)
+            log.info "${ezproxyHosts.size()} parsed records will be deleted for file ${fileName}"
+            ezproxyHosts.each {
+                EzproxyHosts.get(it.id).delete()
+            }
+//            EzproxyHosts.withNewTransaction {
+//                EzproxyHosts.findAllByFileName(params.id) {EzproxyHosts host ->
+//                    host.delete(flush: true, failOnError: true)
+//                    log.info "deleting ezproxy hosts ${it.id}"
+//                }
+//            }
+        }
+
+        redirect(action: "index")
     }
 }
 

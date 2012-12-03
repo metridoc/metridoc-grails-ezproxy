@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
     <changeSet author="tbarker (generated)" id="1354020224734-1">
         <createTable tableName="ez_properties">
             <column autoIncrement="true" name="id" type="bigint">
@@ -139,5 +141,20 @@
             <column name="ezproxy_id"/>
             <column name="url_host"/>
         </createIndex>
+    </changeSet>
+    <changeSet author="tbarker (generated)" id="1354472456106-1">
+        <addColumn tableName="ezproxy_hosts">
+            <column name="error" type="bit">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet author="tbarker (generated)" id="1354472456106-2">
+        <addColumn tableName="ezproxy_hosts">
+            <column name="ref_url_host" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="tbarker (generated)" id="1354472456106-3">
+        <dropColumn columnName="processed" tableName="ezproxy_hosts"/>
     </changeSet>
 </databaseChangeLog>

@@ -3,11 +3,13 @@
     <ul class="legend">
         <li><span class="available"></span>Available</li>
         <li><span class="done"></span>Done</li>
+        <li><span class="error"></span>Error</li>
         %{--TODO: the commented out items below are for improved file monitoring coming in 0.53--}%
         %{--<li><span class="changed"></span>File Changed</li>--}%
         %{--<li><span class="error"></span>Error</li>--}%
     </ul>
     <br/>
+
     <div class="ezproxyData"><table id="ezproxyFiles">
         <tbody>
         <g:each status="count" var="file" in="${ezproxyFiles}">
@@ -19,10 +21,18 @@
                 <tr>
             </g:if>
             <td>
-                %{--<strong><span class="doneFile">${file.name}</span></strong>--}%
-                <g:if test="${file.done}">
-                    <strong><span class="doneFile">${file.file.name}</span></strong>
+            %{--<strong><span class="doneFile">${file.name}</span></strong>--}%
+
+                <g:if test="${file.error}">
+                    <strong>
+                        <span class="errorFile">${file.file.name} (<g:link action="deleteFileData" id="${file.file.name}">delete</g:link>)</span>
+                    </strong>
                 </g:if>
+                <g:elseif test="${file.done}">
+                    <strong>
+                        <span class="doneFile">${file.file.name} (<g:link action="deleteFileData" id="${file.file.name}">delete</g:link>)</span>
+                    </strong>
+                </g:elseif>
                 <g:else>
                     <strong><span class="notDoneFile">${file.file.name}</span></strong>
                 </g:else>
@@ -35,5 +45,5 @@
     </table></div>
 </g:if>
 <g:else>
-    There are no ezproxy files at directory ${ezproxyDirectory}
+    There are no ezproxy files in directory ${ezproxyDirectory}
 </g:else>

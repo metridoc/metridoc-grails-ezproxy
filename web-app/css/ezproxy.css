@@ -97,3 +97,7 @@ button:hover, #ezproxyActions:hover {
 .doneFile {
     color:green;
 }
+
+.errorFile {
+    color: red;
+}

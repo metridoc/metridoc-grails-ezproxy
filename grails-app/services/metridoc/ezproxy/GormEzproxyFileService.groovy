@@ -1,6 +1,5 @@
 package metridoc.ezproxy
 
-import org.springframework.util.StringUtils
 import java.util.zip.GZIPInputStream
 
 class GormEzproxyFileService implements EzproxyFileService {
@@ -10,11 +9,11 @@ class GormEzproxyFileService implements EzproxyFileService {
     private List<Class<EzproxyBase>> _gormClasses = []
 
     List<EzproxyBase> getGormClasses() {
-        if(_gormClasses) return _gormClasses
+        if (_gormClasses) return _gormClasses
 
         grailsApplication.domainClasses.each {
             def clazz = it.clazz
-            if(clazz == EzproxyHosts) {
+            if (clazz == EzproxyHosts) {
                 _gormClasses << clazz
             }
         }
@@ -22,11 +21,33 @@ class GormEzproxyFileService implements EzproxyFileService {
         return _gormClasses
     }
 
+    void handleFatalError(File file, String line, int lineNumber, Throwable error) {
+        gormClasses.each {Class<EzproxyBase> ezBase ->
+            EzproxyBase invalidRecord = ezBase.newInstance().createDefaultInvalidRecord()
+            invalidRecord.fileName = file.name
+            invalidRecord.lineNumber = lineNumber
+            invalidRecord.validationError = error.message
+
+            if (!error instanceof AssertionError) {
+                invalidRecord.error = true
+            }
+
+            invalidRecord.withNewTransaction {
+                invalidRecord.save(failOnError: true)
+            }
+
+            if (!error instanceof AssertionError) {
+                throw error
+            }
+        }
+
+    }
+
     void handleValidationError(EzproxyHosts object) {
         if (object.errors.fieldErrorCount) {
             def error = object.errors.fieldErrors[0]
-            def message =  "Field error in object '" + error.objectName + "' on field '" + error.field +
-                    "': rejected value [" + error.rejectedValue + "]"
+            def message = "Field error in object '" + error.objectName + "' on field '" + error.field +
+                "': rejected value [" + error.rejectedValue + "]"
             def invalidRecord = object.createDefaultInvalidRecord()
 
 
@@ -46,7 +67,7 @@ class GormEzproxyFileService implements EzproxyFileService {
     void processFile(File file, parser) {
 
         def stream = new FileInputStream(file)
-        if(file.name.endsWith(".gz")) {
+        if (file.name.endsWith(".gz")) {
             stream = new GZIPInputStream(stream)
         }
 
@@ -56,7 +77,7 @@ class GormEzproxyFileService implements EzproxyFileService {
                 process(record)
             } catch (Throwable throwable) {
                 log.error "error occurred for file $file at line $lineNumber with line $line", throwable
-                throw throwable
+                handleFatalError(file, line, lineNumber, throwable)
             }
         }
     }
@@ -81,7 +102,7 @@ class GormEzproxyFileService implements EzproxyFileService {
             def lineNumber = record.lineNumber
             def fileName = record.fileName
 
-            if(lineNumber % 10000 == 0) {
+            if (lineNumber % 10000 == 0) {
                 log.info "$lineNumber lines have been processed for file $fileName"
             }
         }
