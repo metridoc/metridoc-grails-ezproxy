@@ -25,7 +25,7 @@
                 <input id="ezproxyFileRegex" type="text" name="ezproxyFileRegex" value="${ezproxyFileFilter}"/>
                 <br/>
                 <br/>
-                <tmpl:fileOutput/>
+                <g:render template="fileOutput" plugin="metridoc-ezproxy"/>
             </div>
 
             <br/>
@@ -47,7 +47,7 @@
                 </div>
             </g:if>
             <g:else>
-                <tmpl:testData model="${params}"/>
+                <g:render template="testData" plugin="metridoc-ezproxy" model="${params}"/>
             </g:else>
             <br/>
 
