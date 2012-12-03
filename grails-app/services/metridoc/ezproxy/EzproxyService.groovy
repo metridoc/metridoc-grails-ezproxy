@@ -153,9 +153,10 @@ class EzproxyService {
             if(it.isFile()) {
                 def filter = getEzproxyFileFilter()
                 if(it.name ==~ filter) {
-                    def logLines = EzproxyHosts.findAllByFileName(it.name, [max:1])
+                    def fileData = EzFileMetaData.findByFileName(it.name)
+
                     def itemToAdd = [file:it]
-                    if(logLines) {
+                    if(fileData) {
                         itemToAdd.done = true
                     } else {
                         itemToAdd.done = false

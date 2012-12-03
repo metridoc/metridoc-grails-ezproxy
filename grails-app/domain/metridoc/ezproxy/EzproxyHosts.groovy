@@ -10,16 +10,9 @@ class EzproxyHosts extends EzproxyBase<EzproxyHosts> {
     static transients = ["hostsByEzproxyId", "url", "refUrl"]
     static mapping = {
         fileName(index: 'idx_ez_hosts_file_name')
-        patronId(index: 'idx_ez_hosts_patron_id')
-        country(index: 'idx_ez_hosts_country')
-        state(index: 'idx_ez_hosts_state')
-        city(index: 'idx_ez_hosts_city')
         ezproxyId(index: "idx_ez_hosts_ezproxy_id")
         valid(index: "idx_ez_hosts_valid")
         urlHost(index: "idx_ez_hosts_url_host")
-        dept(index: "idx_ez_hosts_dept")
-        organization(index: "idx_ez_organization")
-        rank(index: "idx_rank")
         tablePerHierarchy(false)
     }
 
@@ -37,8 +30,6 @@ class EzproxyHosts extends EzproxyBase<EzproxyHosts> {
         dept(nullable: true)
         rank(nullable: true)
         organization(nullable: true)
-        urlHost(unique: ["ezproxyId"])
-        lineNumber(unique: ["fileName"])
         refUrlHost(nullable: true)
     }
 
@@ -69,7 +60,7 @@ class EzproxyHosts extends EzproxyBase<EzproxyHosts> {
     }
 
     @Override
-    def createDefaultInvalidRecord() {
+    EzproxyHosts createDefaultInvalidRecord() {
         new EzproxyHosts(
                 ipAddress : "ERROR",
                 urlHost : "ERROR-${RandomUtils.nextInt(100000)}",

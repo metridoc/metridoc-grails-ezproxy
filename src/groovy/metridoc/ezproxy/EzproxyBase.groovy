@@ -32,9 +32,7 @@ abstract class EzproxyBase<T extends EzproxyBase> {
     String organization
     String rank
 
-
-
     abstract void loadValues(Map record)
-    abstract def createDefaultInvalidRecord()
+    abstract T createDefaultInvalidRecord()
     abstract boolean accept(Map record)
 }

@@ -1,44 +1,32 @@
 package metridoc.ezproxy
 
 import java.util.zip.GZIPInputStream
+import org.apache.shiro.crypto.hash.Sha256Hash
+import groovy.sql.Sql
+import org.codehaus.groovy.grails.orm.hibernate.cfg.GrailsDomainBinder
 
 class GormEzproxyFileService implements EzproxyFileService {
 
     def ezproxyService
     def grailsApplication
-    private List<Class<EzproxyBase>> _gormClasses = []
-
-    List<EzproxyBase> getGormClasses() {
-        if (_gormClasses) return _gormClasses
-
-        grailsApplication.domainClasses.each {
-            def clazz = it.clazz
-            if (clazz == EzproxyHosts) {
-                _gormClasses << clazz
-            }
-        }
-
-        return _gormClasses
-    }
+    def dataSource
 
     void handleFatalError(File file, String line, int lineNumber, Throwable error) {
-        gormClasses.each {Class<EzproxyBase> ezBase ->
-            EzproxyBase invalidRecord = ezBase.newInstance().createDefaultInvalidRecord()
-            invalidRecord.fileName = file.name
-            invalidRecord.lineNumber = lineNumber
-            invalidRecord.validationError = error.message
+        EzproxyHosts invalidRecord = EzproxyHostsLoading.newInstance().createDefaultInvalidRecord()
+        invalidRecord.fileName = file.name
+        invalidRecord.lineNumber = lineNumber
+        invalidRecord.validationError = error.message
 
-            if (!error instanceof AssertionError) {
-                invalidRecord.error = true
-            }
+        if (!error instanceof AssertionError) {
+            invalidRecord.error = true
+        }
 
-            invalidRecord.withNewTransaction {
-                invalidRecord.save(failOnError: true)
-            }
+        EzproxyHostsLoading.withNewTransaction {
+            invalidRecord.save(failOnError: true)
+        }
 
-            if (!error instanceof AssertionError) {
-                throw error
-            }
+        if (!error instanceof AssertionError) {
+            throw error
         }
 
     }
@@ -47,7 +35,7 @@ class GormEzproxyFileService implements EzproxyFileService {
         if (object.errors.fieldErrorCount) {
             def error = object.errors.fieldErrors[0]
             def message = "Field error in object '" + error.objectName + "' on field '" + error.field +
-                "': rejected value [" + error.rejectedValue + "]"
+                    "': rejected value [" + error.rejectedValue + "]"
             def invalidRecord = object.createDefaultInvalidRecord()
 
 
@@ -66,46 +54,65 @@ class GormEzproxyFileService implements EzproxyFileService {
 
     void processFile(File file, parser) {
 
-        def stream = new FileInputStream(file)
-        if (file.name.endsWith(".gz")) {
-            stream = new GZIPInputStream(stream)
-        }
+        try {
+            def hex = new Sha256Hash(file).toHex()
 
-        stream.eachLine("utf-8") {String line, int lineNumber ->
-            try {
-                def record = parser.parse(line, lineNumber, file.name)
-                process(record)
-            } catch (Throwable throwable) {
-                log.error "error occurred for file $file at line $lineNumber with line $line", throwable
-                handleFatalError(file, line, lineNumber, throwable)
+            EzproxyHosts.withNewTransaction {
+                new EzFileMetaData(fileName: file.name, sha256: hex).save(failOnError: true)
+                log.info "stored metaData of file $file"
+                def stream = new FileInputStream(file)
+                if (file.name.endsWith(".gz")) {
+                    stream = new GZIPInputStream(stream)
+                }
+
+                stream.eachLine("utf-8") {String line, int lineNumber ->
+                    try {
+                        def record = parser.parse(line, lineNumber, file.name)
+                        process(record)
+                    } catch (Throwable throwable) {
+                        log.error "error occurred for file $file at line $lineNumber with line $line", throwable
+                        handleFatalError(file, line, lineNumber, throwable)
+                    }
+                }
             }
+
+
+            log.info "finished processing file $file"
+        } catch (Throwable e) {
+            def data = EzFileMetaData.findByFileName(file.name)
+            if (data) {
+                EzFileMetaData.get(data.id).delete()
+            }
+            EzproxyHosts.executeUpdate('delete EzproxyHosts e where e.fileName = :fileName', [fileName : file.name])
+            throw e
         }
     }
 
     protected void process(Map<String, Object> record) {
 
-        gormClasses.each {Class<EzproxyBase> ezBase ->
-            def gormRecord = ezBase.newInstance()
-            if (gormRecord.accept(record)) {
-                gormRecord.loadValues(record)
-                boolean valid = gormRecord.validate()
-                if (!valid) {
-                    handleValidationError(gormRecord)
-                } else {
-                    gormRecord.save(failOnError: true)
-                    if (log.isDebugEnabled()) {
-                        log.debug "saved record ${gormRecord} for file ${gormRecord.fileName} and line ${gormRecord.lineNumber}"
-                    }
+
+        def gormRecord = new EzproxyHosts()
+        if (gormRecord.accept(record)) {
+            gormRecord.loadValues(record)
+            boolean valid = gormRecord.validate()
+            if (!valid) {
+                handleValidationError(gormRecord)
+            } else {
+                gormRecord.save(failOnError: true)
+                if (log.isDebugEnabled()) {
+                    log.debug "saved record ${gormRecord} for file ${gormRecord.fileName} and line ${gormRecord.lineNumber}"
                 }
             }
-
-            def lineNumber = record.lineNumber
-            def fileName = record.fileName
-
-            if (lineNumber % 10000 == 0) {
-                log.info "$lineNumber lines have been processed for file $fileName"
-            }
         }
+
+        def lineNumber = record.lineNumber
+        def fileName = record.fileName
+
+        if (lineNumber % 10000 == 0) {
+            log.info "$lineNumber lines have been processed for file $fileName"
+        }
+
+
     }
 
 

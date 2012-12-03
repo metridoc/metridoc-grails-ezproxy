@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
 @TestFor(GormEzproxyFileService)
-@Mock(EzproxyHosts)
+@Mock([EzproxyHosts, EzFileMetaData])
 class GormEzproxyFileServiceTests {
 
     @Test
@@ -27,7 +27,8 @@ class GormEzproxyFileServiceTests {
         ]
         service.processFile(file, parser)
         def ezproxyIds = ["96CV6QQh0Mclz5Z", "vO07NtNOHwIciIH"] as Set
-        EzproxyHosts.list().each {
+        def hosts = EzproxyHosts.list()
+        hosts.each {
             assert ezproxyIds.remove(it.ezproxyId)
             assert it.valid
             assert null == it.validationError

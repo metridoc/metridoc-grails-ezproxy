@@ -7,7 +7,7 @@ package metridoc.ezproxy
  * Time: 11:34 AM
  * To change this template use File | Settings | File Templates.
  */
-class EzproxyParserService {
+abstract class EzproxyParserService {
 
     String parser
 
