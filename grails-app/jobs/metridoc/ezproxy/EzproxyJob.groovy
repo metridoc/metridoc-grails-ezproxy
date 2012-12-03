@@ -16,7 +16,7 @@ class EzproxyJob extends MetridocJob {
     }
 
     private getFiles(Closure condition) {
-        ezproxyService.ezproxyFiles.findAll{
+        ezproxyService.ezproxyFiles.findAll {
             return condition.call(it)
         }
     }
@@ -25,16 +25,16 @@ class EzproxyJob extends MetridocJob {
     def doExecute() {
 
         target(ezMaintenance: "checking md5 of files") {
-            getFiles{it.done}.each {
+            getFiles {it.done}.each {
                 def file = it.file
                 def hex = new Sha256Hash(file).toHex()
                 EzFileMetaData.withNewTransaction {
                     def fileName = file.name
                     def data = EzFileMetaData.findByFileName(fileName)
-                    if(data) {
-                        if(hex != data.sha256) {
+                    if (data) {
+                        if (hex != data.sha256) {
                             EzFileMetaData.get(data.id).delete()
-                            EzproxyHosts.executeUpdate('delete EzproxyHosts e where e.fileName = :fileName', [fileName : fileName])
+                            EzproxyHosts.executeUpdate('delete EzproxyHosts e where e.fileName = :fileName', [fileName: fileName])
                         }
                     }
                 }
@@ -43,7 +43,7 @@ class EzproxyJob extends MetridocJob {
         }
 
         target(processingEzproxyFiles: "processing ezproxy files") {
-            def files = getFiles{!it.done}
+            def files = getFiles {!it.done}
 
             boolean hasFilesAndParser = true
             if (!files) {
@@ -51,15 +51,15 @@ class EzproxyJob extends MetridocJob {
                 hasFilesAndParser = false
             }
 
-            def fileToProcess = files[0].file //only load one file at a time
-
             def hasParser = ezproxyService.hasParser()
-            if(!hasParser) {
+
+            if (!hasParser) {
                 log.info "no parser has been set, can't parse ezproxy files yet"
                 hasFilesAndParser = false
             }
 
             if (hasFilesAndParser) {
+                def fileToProcess = files[0].file //only load one file at a time
                 gormEzproxyFileService.processFile(fileToProcess)
             }
         }
