@@ -167,9 +167,6 @@ log4j = {
 
     warn 'metridoc.camel'
 
-    //logs all job output
-    info jobLog: "metridoc.job"
-
     root {
         info 'stdout', 'file'
     }
