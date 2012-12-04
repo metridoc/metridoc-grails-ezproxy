@@ -15,6 +15,7 @@
 
 import org.apache.commons.lang.SystemUtils
 import org.slf4j.LoggerFactory
+import metridoc.ezproxy.EzproxyJob
 
 // config files can either be Java properties files or ConfigSlurper scripts
 
@@ -186,3 +187,8 @@ grails.doc.title = "MetriDoc User Manual"
 metridoc.style.layout = "main"
 
 grails.plugin.databasemigration.changelogFileName = "ezproxySchema.xml"
+
+//an example of how to override the schedule for teh ezproxy job
+//EzproxyJob.triggers = {
+//    simple repeatInterval: 1000 * 60 * 15, name: "schedule override"
+//}
