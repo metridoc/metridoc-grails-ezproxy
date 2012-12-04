@@ -5,9 +5,9 @@ class EzproxyAdminController {
     def ezproxyService
 
     static homePage = [
-        title: "Ezproxy Admin Panel",
-        adminOnly: true,
-        description: """
+            title: "Ezproxy Admin Panel",
+            adminOnly: true,
+            description: """
                 Creates the parser and sets the general setting for Ezproxy
             """
     ]
@@ -18,11 +18,12 @@ class EzproxyAdminController {
 
     private getBasicModel() {
         def model = [
-            rawSampleData: ezproxyService.rawSampleData,
-            ezproxyParser: ezproxyService.rawParser,
-            ezproxyFiles: ezproxyService.ezproxyFiles,
-            ezproxyDirectory: ezproxyService.ezproxyDirectory,
-            ezproxyFileFilter: ezproxyService.ezproxyFileFilter
+                rawSampleData: ezproxyService.rawSampleData,
+                ezproxyParser: ezproxyService.rawParser,
+                ezproxyFiles: ezproxyService.ezproxyFiles,
+                ezproxyDirectory: ezproxyService.ezproxyDirectory,
+                ezproxyFileFilter: ezproxyService.ezproxyFileFilter,
+                ezproxyJobIsActive: ezproxyService.isJobActive()
         ]
 
         if (ezproxyService.parserException) {
@@ -34,9 +35,9 @@ class EzproxyAdminController {
             try {
                 parsedData = ezproxyService.parsedData
                 model << [
-                    ezproxyTestData: parsedData,
-                    headers: parsedData.headers,
-                    rows: parsedData.rows
+                        ezproxyTestData: parsedData,
+                        headers: parsedData.headers,
+                        rows: parsedData.rows
                 ]
             } catch (Throwable throwable) {
                 log.error "error occurred parsing ezproxy", throwable
@@ -45,6 +46,16 @@ class EzproxyAdminController {
         }
 
         return model
+    }
+
+    def activateJob() {
+        ezproxyService.activateEzproxyJob()
+        redirect(action: "index")
+    }
+
+    def deactivateJob() {
+        ezproxyService.deactivateEzproxyJob()
+        redirect(action: "index")
     }
 
     def updateEzproxyParser() {
@@ -79,15 +90,15 @@ class EzproxyAdminController {
 
     def testData() {
         [
-            headers: ezproxyService.parsedData.headers,
-            rows: ezproxyService.parsedData.rows
+                headers: ezproxyService.parsedData.headers,
+                rows: ezproxyService.parsedData.rows
         ]
     }
 
     def listFiles() {
         [
-            ezproxyFiles: ezproxyService.ezproxyFiles,
-            ezproxyDirectory: ezproxyService.ezproxyDirectory
+                ezproxyFiles: ezproxyService.ezproxyFiles,
+                ezproxyDirectory: ezproxyService.ezproxyDirectory
         ]
 
     }

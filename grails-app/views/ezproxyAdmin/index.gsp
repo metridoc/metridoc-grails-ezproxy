@@ -10,52 +10,57 @@
 <md:report module="ezproxy">
 
     <span id="ezproxyParserContainer">
-        <g:formRemote method="POST" name="updateEzproxyParser" url="[action: 'updateEzproxyParser']"
-                      onComplete="window.location.reload()">
-            <md:header>General Settings</md:header>
+    <g:form name="updateEzproxyParser">
+        <md:header>General Settings</md:header>
 
-            <div>
-         <label for="ezproxyDirectory">Ezproxy Directory:</label>
-     <input id="ezproxyDirectory" type="text" name="ezproxyDirectory"
-            value="${ezproxyDirectory}">
+        <div/>
+        <label for="ezproxyDirectory">Ezproxy Directory:</label>
+        <input id="ezproxyDirectory" type="text" name="ezproxyDirectory"
+               value="${ezproxyDirectory}">
         </input>
         </div>
-            <div>
-                <label for="ezproxyFileRegex">Ezproxy File Regex:</label>
-                <input id="ezproxyFileRegex" type="text" name="ezproxyFileRegex" value="${ezproxyFileFilter}"/>
-                <br/>
-                <br/>
-                <g:render template="fileOutput" plugin="metridoc-ezproxy"/>
-            </div>
-
+        <div>
+            <label for="ezproxyFileRegex">Ezproxy File Regex:</label>
+            <input id="ezproxyFileRegex" type="text" name="ezproxyFileRegex" value="${ezproxyFileFilter}"/>
             <br/>
             <br/>
-            <md:header>Paste Sample Ezproxy Data</md:header>
-            <textarea id="rawEzproxyData" class="ui-widget-content code-box"
-                      name="rawEzproxyData">${rawSampleData}</textarea>
+            <g:render template="fileOutput" plugin="metridoc-ezproxy"/>
+        </div>
+
+        <br/>
+        <br/>
+        <md:header>Paste Sample Ezproxy Data</md:header>
+        <textarea id="rawEzproxyData" class="ui-widget-content code-box"
+                  name="rawEzproxyData">${rawSampleData}</textarea>
 
 
-            <md:header>Ezproxy Parser</md:header>
-            <textarea id="ezproxyParserCode" class="ui-widget-content code-box"
-                      name="ezproxyParserScript">${ezproxyParser}</textarea>
+        <md:header>Ezproxy Parser</md:header>
+        <textarea id="ezproxyParserCode" class="ui-widget-content code-box"
+                  name="ezproxyParserScript">${ezproxyParser}</textarea>
 
-            <g:if test="${parseException}">
-                <div class="ui-widget">
-                    <div class="ui-state-error ui-corner-all" style="padding: 0 0.7em;">
-                        <pre>${ExceptionUtils.getFullStackTrace(parseException)}</pre>
-                    </div>
+        <g:if test="${parseException}">
+            <div class="ui-widget">
+                <div class="ui-state-error ui-corner-all" style="padding: 0 0.7em;">
+                    <pre>${ExceptionUtils.getFullStackTrace(parseException)}</pre>
                 </div>
+            </div>
+        </g:if>
+        <g:else>
+            <g:render template="testData" plugin="metridoc-ezproxy" model="${params}"/>
+        </g:else>
+        <br/>
+
+        <div class="buttons">
+            <g:actionSubmit value="Update" action="updateEzproxyParser"/>
+            <g:if test="${ezproxyJobIsActive}">
+                <g:actionSubmit value="Deactivate Job" action="deactivateJob"/>
             </g:if>
             <g:else>
-                <g:render template="testData" plugin="metridoc-ezproxy" model="${params}"/>
+                <g:actionSubmit value="Activate Job" action="activateJob"/>
             </g:else>
-            <br/>
+        </div>
 
-            <div class="buttons">
-                <g:actionSubmit value="Update"/>
-            </div>
-
-        </g:formRemote>
+    </g:form>
     </span>
 
 </md:report>

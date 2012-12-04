@@ -2,6 +2,7 @@ package metridoc.ezproxy
 
 import metridoc.core.MetridocJob
 import org.apache.shiro.crypto.hash.Sha256Hash
+import org.quartz.JobKey
 
 
 
@@ -10,9 +11,11 @@ class EzproxyJob extends MetridocJob {
     static HALF_HOUR = 1000 * 60 * 30
     def ezproxyService
     def gormEzproxyFileService
+    final static TRIGGER_NAME = "parse ezproxy files"
+    def quartzScheduler
 
     static triggers = {
-        simple repeatInterval: HALF_HOUR, name: "parse ezproxy files"
+        simple repeatInterval: HALF_HOUR, name: TRIGGER_NAME
     }
 
     private getFiles(Closure condition) {
@@ -23,6 +26,15 @@ class EzproxyJob extends MetridocJob {
 
     @Override
     def doExecute() {
+
+        if(!ezproxyService.isJobActive()) {
+            def jobKey = new JobKey(this.class.name)
+            assert jobKey : "Unexpected exception, could not find the job key for EzproxyJob"
+            quartzScheduler.pauseJob(jobKey)
+            log.info "ezproxy job is not active, pausing it for now.  It can be reactivated either in the ezproxy admin panel or the job list"
+
+            return
+        }
 
         target(ezMaintenance: "checking md5 of files") {
             getFiles {it.done}.each {
