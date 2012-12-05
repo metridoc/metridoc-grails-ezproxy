@@ -1,10 +1,8 @@
 package metridoc.ezproxy
 
 import metridoc.core.MetridocJob
-import org.apache.shiro.crypto.hash.Sha256Hash
+import org.apache.commons.codec.digest.DigestUtils
 import org.quartz.JobKey
-
-
 
 class EzproxyJob extends MetridocJob {
 
@@ -27,9 +25,9 @@ class EzproxyJob extends MetridocJob {
     @Override
     def doExecute() {
 
-        if(!ezproxyService.isJobActive()) {
+        if (!ezproxyService.isJobActive()) {
             def jobKey = new JobKey(this.class.name)
-            assert jobKey : "Unexpected exception, could not find the job key for EzproxyJob"
+            assert jobKey: "Unexpected exception, could not find the job key for EzproxyJob"
             quartzScheduler.pauseJob(jobKey)
             log.info "ezproxy job is not active, pausing it for now.  It can be reactivated either in the ezproxy admin panel or the job list"
 
@@ -38,15 +36,16 @@ class EzproxyJob extends MetridocJob {
 
         target(ezMaintenance: "checking md5 of files") {
             getFiles {it.done}.each {
-                def file = it.file
-                def hex = new Sha256Hash(file).toHex()
+                File file = it.file
+                def hex = DigestUtils.sha256Hex(file.newInputStream())
+
                 EzFileMetaData.withNewTransaction {
                     def fileName = file.name
                     def data = EzFileMetaData.findByFileName(fileName)
                     if (data) {
                         if (hex != data.sha256) {
                             EzFileMetaData.get(data.id).delete()
-                            EzproxyHosts.executeUpdate('delete EzproxyHosts e where e.fileName = :fileName', [fileName: fileName])
+                            EzproxyHosts.executeUpdate("delete EzproxyHosts e where e.fileName = :fileName", [fileName: fileName])
                         }
                     }
                 }
