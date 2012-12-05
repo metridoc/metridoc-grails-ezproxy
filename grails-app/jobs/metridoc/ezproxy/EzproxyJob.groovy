@@ -3,6 +3,7 @@ package metridoc.ezproxy
 import metridoc.core.MetridocJob
 import org.apache.commons.codec.digest.DigestUtils
 import org.quartz.JobKey
+import org.apache.commons.io.IOUtils
 
 class EzproxyJob extends MetridocJob {
 
@@ -37,7 +38,9 @@ class EzproxyJob extends MetridocJob {
         target(ezMaintenance: "checking md5 of files") {
             getFiles {it.done}.each {
                 File file = it.file
-                def hex = DigestUtils.sha256Hex(file.newInputStream())
+                def stream = file.newInputStream()
+                def hex = DigestUtils.sha256Hex(stream)
+                IOUtils.closeQuietly(stream)
 
                 EzFileMetaData.withNewTransaction {
                     def fileName = file.name
