@@ -15,8 +15,8 @@ grails.project.dependency.resolution = {
         grailsCentral()
         // uncomment the below to enable remote dependency resolution
         // from public Maven repositories
-        //mavenLocal()
-        //mavenCentral()
+        mavenLocal()
+        mavenCentral()
         //mavenRepo "http://snapshots.repository.codehaus.org"
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
@@ -33,9 +33,7 @@ grails.project.dependency.resolution = {
     plugins {
         runtime ":database-migration:1.2"
 
-        compile(":metridoc-core:0.52-SNAPSHOT") {
-            excludes "shiro-quartz"
-        }
+        compile(":metridoc-core:0.52.1")
 
         build(":tomcat:$grailsVersion",
                 ":release:2.0.3",
