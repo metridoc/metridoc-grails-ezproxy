@@ -34,6 +34,7 @@ class EzproxyServiceTests {
         def template = {parserText ->
             """
             class EzproxyParser {
+                    def applicationContext
                     def parse(line, lineNumber, fileName) {
                         def result = [:] as TreeMap
                         result.lineNumber = lineNumber
@@ -45,7 +46,10 @@ class EzproxyServiceTests {
             }
         """
         }
+
+        service.applicationContext = "placeholder"
         def parser = service.buildParser("result.foo = line", template);
+        assert parser.applicationContext == "placeholder"
         def result = parser.parse("foobar", 2, "bar")
         assert "foobar" == result.foo
         assert 2 == result.lineNumber

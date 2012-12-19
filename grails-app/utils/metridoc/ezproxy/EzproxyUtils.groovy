@@ -39,6 +39,8 @@ result.ezproxyId = data[13]
 
     class EzproxyParser {
 
+            def applicationContext
+
             def parse(String line, int lineNumber, String fileName) {
                 def result = [:] as TreeMap
                 result.lineNumber = lineNumber

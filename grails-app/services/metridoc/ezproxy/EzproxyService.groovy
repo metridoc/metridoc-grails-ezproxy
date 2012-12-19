@@ -14,6 +14,7 @@ class EzproxyService {
     def parserObject
     def parserException
     def quartzScheduler
+    def _applicationContext
 
     static final PARSER_PROPERTY = "metridoc.ezproxy.parser"
     static final RAW_DATA_PROPERTY = "metridoc.ezproxy.rawData"
@@ -35,6 +36,18 @@ class EzproxyService {
                 datasource = 'ezproxy'
             }
         }
+    }
+
+    def getApplicationContext() {
+        if (_applicationContext) {
+            return _applicationContext
+        }
+
+        _applicationContext = grailsApplication?.mainContext
+    }
+
+    void setApplicationContext(def _applicationContext) {
+        this._applicationContext = _applicationContext
     }
 
     def getRawSampleData() {
@@ -145,7 +158,10 @@ class EzproxyService {
     def buildParser(String parserText, Closure parserTemplate) {
         def code = parserTemplate.call(parserText)
         def classLoader = Thread.currentThread().contextClassLoader
-        new GroovyClassLoader(classLoader).parseClass(code).newInstance()
+        def parser = new GroovyClassLoader(classLoader).parseClass(code).newInstance()
+        parser.applicationContext = applicationContext
+
+        return parser
     }
 
     def shouldRebuildParser(String storedparser) {
