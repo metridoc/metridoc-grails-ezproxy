@@ -1,18 +1,16 @@
 package metridoc.ezproxy
 
-import java.util.zip.GZIPInputStream
 import org.apache.shiro.crypto.hash.Sha256Hash
-import groovy.sql.Sql
-import org.codehaus.groovy.grails.orm.hibernate.cfg.GrailsDomainBinder
+
+import java.util.zip.GZIPInputStream
 
 class GormEzproxyFileService implements EzproxyFileService {
 
     def ezproxyService
     def grailsApplication
-    def dataSource
 
-    void handleFatalError(File file, String line, int lineNumber, Throwable error) {
-        EzproxyHosts invalidRecord = EzproxyHostsLoading.newInstance().createDefaultInvalidRecord()
+    void handleFatalError(File file, int lineNumber, Throwable error) {
+        EzproxyHosts invalidRecord = EzproxyHosts.newInstance().createDefaultInvalidRecord()
         invalidRecord.fileName = file.name
         invalidRecord.lineNumber = lineNumber
         invalidRecord.validationError = error.message
@@ -21,7 +19,7 @@ class GormEzproxyFileService implements EzproxyFileService {
             invalidRecord.error = true
         }
 
-        EzproxyHostsLoading.withNewTransaction {
+        EzproxyHosts.withNewTransaction {
             invalidRecord.save(failOnError: true)
         }
 
@@ -71,7 +69,7 @@ class GormEzproxyFileService implements EzproxyFileService {
                         process(record)
                     } catch (Throwable throwable) {
                         log.error "error occurred for file $file at line $lineNumber with line $line", throwable
-                        handleFatalError(file, line, lineNumber, throwable)
+                        handleFatalError(file, lineNumber, throwable)
                     }
                 }
             }

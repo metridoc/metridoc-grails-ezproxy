@@ -35,6 +35,7 @@ result.ezproxyId = data[13]
 """
     import java.text.*
     import org.slf4j.*
+    import metridoc.utils.*
 
     class EzproxyParser {
 
