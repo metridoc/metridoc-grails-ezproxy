@@ -20,7 +20,6 @@ class EzproxyService {
     static final RAW_DATA_PROPERTY = "metridoc.ezproxy.rawData"
     static final EZPROXY_DIRECTORY_PROPERTY = "metridoc.ezproxy.directory"
     static final DEFAULT_EZPROXY_DIRECTORY = "${USER_HOME}${FILE_SEPARATOR}.metridoc${FILE_SEPARATOR}files${FILE_SEPARATOR}ezproxy"
-    static final CHARSET = "utf-8"
     static final DEFAULT_FILE_FILTER = /ezproxy\.log\.\d{8}\.gz/
     static final FILE_FILTER_PROPERTY = "metridoc.ezproxy.fileFilter"
     static final JOB_ACTIVE_PROPERTY_NAME = "metridoc.ezproxy.job.enabled"

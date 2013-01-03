@@ -50,6 +50,10 @@ class GormEzproxyFileService implements EzproxyFileService {
         processFile(file, ezproxyService.parserObject)
     }
 
+    String getEncoding() {
+        grailsApplication?.mergedConfig?.metridoc?.ezproxy?.encoding ?: "utf-8"
+    }
+
     void processFile(File file, parser) {
 
         try {
@@ -63,7 +67,7 @@ class GormEzproxyFileService implements EzproxyFileService {
                     stream = new GZIPInputStream(stream)
                 }
 
-                stream.eachLine("utf-8") {String line, int lineNumber ->
+                stream.eachLine(getEncoding()) {String line, int lineNumber ->
                     try {
                         def record = parser.parse(line, lineNumber, file.name)
                         process(record)
@@ -81,7 +85,6 @@ class GormEzproxyFileService implements EzproxyFileService {
             if (data) {
                 EzFileMetaData.get(data.id).delete()
             }
-            EzproxyHosts.executeUpdate('delete EzproxyHosts e where e.fileName = :fileName', [fileName : file.name])
             throw e
         }
     }

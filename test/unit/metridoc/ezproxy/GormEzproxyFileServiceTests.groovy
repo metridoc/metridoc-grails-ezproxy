@@ -36,4 +36,25 @@ class GormEzproxyFileServiceTests {
 
         assert ezproxyIds.isEmpty()
     }
+
+    @Test
+    void "encoding is pulled from config from property metridoc_ezproxy_encoding, utf-8 by default"() {
+        def grailsApplication = [
+                mergedConfig: new ConfigObject()
+        ]
+        service.grailsApplication = grailsApplication
+        assert "utf-8" == service.encoding: "default encoding should be utf-8"
+        grailsApplication = [
+                mergedConfig: [
+                        metridoc: [
+                                ezproxy: [
+                                    encoding: "foo"
+                                ]
+                        ]
+                ]
+        ]
+
+        service.grailsApplication = grailsApplication
+        assert "foo" == service.encoding
+    }
 }

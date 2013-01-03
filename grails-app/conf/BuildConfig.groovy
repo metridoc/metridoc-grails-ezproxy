@@ -28,12 +28,10 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        runtime ":database-migration:1.2"
-
-        compile(":metridoc-core:0.52.1")
+        compile(":metridoc-core:0.53-SNAPSHOT")
         runtime ":hibernate:$grailsVersion"
         build(":tomcat:$grailsVersion",
-                ":release:2.0.3",
+                ":release:$grailsVersion",
                 ":rest-client-builder:1.0.2") {
             export = false
         }
