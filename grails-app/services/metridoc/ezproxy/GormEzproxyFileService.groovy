@@ -1,6 +1,7 @@
 package metridoc.ezproxy
 
-import org.apache.shiro.crypto.hash.Sha256Hash
+import org.apache.commons.codec.digest.DigestUtils
+import org.apache.commons.io.IOUtils
 
 import java.util.zip.GZIPInputStream
 
@@ -57,7 +58,9 @@ class GormEzproxyFileService implements EzproxyFileService {
     void processFile(File file, parser) {
 
         try {
-            def hex = new Sha256Hash(file).toHex()
+            def streamToDigest = file.newInputStream()
+            def hex = DigestUtils.sha256Hex(streamToDigest)
+            IOUtils.closeQuietly(streamToDigest)
 
             EzproxyHosts.withNewTransaction {
                 new EzFileMetaData(fileName: file.name, sha256: hex).save(failOnError: true)
@@ -67,7 +70,7 @@ class GormEzproxyFileService implements EzproxyFileService {
                     stream = new GZIPInputStream(stream)
                 }
 
-                stream.eachLine(getEncoding()) {String line, int lineNumber ->
+                stream.eachLine(getEncoding()) { String line, int lineNumber ->
                     try {
                         def record = parser.parse(line, lineNumber, file.name)
                         process(record)
@@ -77,8 +80,7 @@ class GormEzproxyFileService implements EzproxyFileService {
                     }
                 }
             }
-
-
+            EzproxyHosts.hostsByEzproxyId.clear()
             log.info "finished processing file $file"
         } catch (Throwable e) {
             def data = EzFileMetaData.findByFileName(file.name)

@@ -1,10 +1,8 @@
 package metridoc.ezproxy
 
-
-
-import grails.test.mixin.*
-import org.junit.*
-import java.text.SimpleDateFormat
+import grails.test.mixin.Mock
+import grails.test.mixin.TestFor
+import org.junit.Test
 
 /**
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
@@ -14,15 +12,15 @@ import java.text.SimpleDateFormat
 class GormEzproxyFileServiceTests {
 
     @Test
-    void "test full blown implementation" () {
+    void "test full blown implementation"() {
         def file = File.createTempFile("ezproxy", "log")
-        file.deleteOnExit()
+
         file.write(EzproxyUtils.DEFAULT_LOG_DATA, "utf-8")
         def ezproxyService = new EzproxyService()
         def parser = ezproxyService.buildParser(EzproxyUtils.DEFAULT_PARSER, EzproxyUtils.DEFAULT_PARSER_TEMPLATE)
         service.grailsApplication = [
                 domainClasses: [
-                    [clazz:EzproxyHosts]
+                        [clazz: EzproxyHosts]
                 ]
         ]
         service.processFile(file, parser)
@@ -48,7 +46,7 @@ class GormEzproxyFileServiceTests {
                 mergedConfig: [
                         metridoc: [
                                 ezproxy: [
-                                    encoding: "foo"
+                                        encoding: "foo"
                                 ]
                         ]
                 ]

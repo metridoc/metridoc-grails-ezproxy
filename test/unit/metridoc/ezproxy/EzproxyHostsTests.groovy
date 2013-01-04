@@ -1,8 +1,8 @@
 package metridoc.ezproxy
 
-import grails.test.mixin.Mock
-import org.junit.Test
 import grails.test.mixin.TestFor
+import org.junit.Test
+
 import java.text.SimpleDateFormat
 
 /**
@@ -26,7 +26,7 @@ class EzproxyHostsTests {
 
     @Test
     void "transform record creates a host name for the incoming url"() {
-        ezproxyHosts.loadValues([url:"http://blah.blam.com/foo/bar"])
+        ezproxyHosts.loadValues([url: "http://blah.blam.com/foo/bar"])
         assert "blah.blam.com" == ezproxyHosts.urlHost
     }
 
@@ -34,20 +34,20 @@ class EzproxyHostsTests {
     void "one to one paramaters are set to null if they don't exist in record to domain object"() {
         ezproxyHosts.loadValues([:])
 
-        EzproxyHosts.ONE_TO_ONE_PROPERTIES.each {
+        EzproxyHosts.DEFAULT_ONE_TO_ONE_PROPERTIES.each {
             assert ezproxyHosts."${it}" == null
         }
     }
 
     @Test
     void "urlHost is not added if there is a malformed url exception"() {
-        ezproxyHosts.loadValues([url:"blah.blam.com/foo/bar"])
+        ezproxyHosts.loadValues([url: "blah.blam.com/foo/bar"])
         assert !ezproxyHosts.urlHost
     }
 
     @Test
-    void "one to one properties are carried over from the record to domain object" () {
-        ezproxyHosts.loadValues([patronId:"foo"])
+    void "one to one properties are carried over from the record to domain object"() {
+        ezproxyHosts.loadValues([patronId: "foo"])
         assert "foo" == ezproxyHosts.patronId
     }
 
@@ -62,7 +62,7 @@ class EzproxyHostsTests {
     @Test
     void "year, month and day are added if proxy date is available"() {
         def date = new SimpleDateFormat("yyyy-MM-dd").parse("2000-01-01")
-        ezproxyHosts.loadValues([proxyDate:date])
+        ezproxyHosts.loadValues([proxyDate: date])
         assert 1 == ezproxyHosts.proxyDay
         assert 1 == ezproxyHosts.proxyMonth
         assert 2000 == ezproxyHosts.proxyYear
