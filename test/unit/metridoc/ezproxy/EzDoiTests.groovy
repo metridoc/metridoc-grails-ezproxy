@@ -18,7 +18,7 @@ class EzDoiTests {
     }
 
     @Test
-    void "has doi returns true if a doi exists in url, false otherwise.  Input is a valid non empty string"() {
+    void "has doi returns true if a doi exists in url, false otherwise, input is a valid non empty string"() {
         hasDoiTest([url: "http://foo.com"], false)
         hasDoiTest([url: "http://foo.com10."], true)
     }
