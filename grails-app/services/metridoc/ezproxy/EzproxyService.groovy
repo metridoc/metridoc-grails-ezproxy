@@ -27,19 +27,6 @@ class EzproxyService {
     static final FILE_FILTER_PROPERTY = "metridoc.ezproxy.fileFilter"
     static final JOB_ACTIVE_PROPERTY_NAME = "metridoc.ezproxy.job.enabled"
 
-
-    static datasource
-
-    static {
-        def grailsApplication = Holders.grailsApplication
-
-        if (grailsApplication) {
-            if (grailsApplication.mergedConfig.dataSource_ezproxy) {
-                datasource = 'ezproxy'
-            }
-        }
-    }
-
     def getApplicationContext() {
         if (_applicationContext) {
             return _applicationContext
