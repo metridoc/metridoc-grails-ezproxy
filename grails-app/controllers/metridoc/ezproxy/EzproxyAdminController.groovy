@@ -104,21 +104,10 @@ class EzproxyAdminController {
     }
 
     def deleteFileData() {
-        def fileName = params.id
+        String fileName = params.id
         if (fileName) {
             log.info "attempting to delete data for ezproxy file $params.id"
-            //TODO: need to generalize to be used against all ezproxy implementations
-            def ezproxyHosts = EzproxyHosts.findAllByFileName(fileName)
-            log.info "${ezproxyHosts.size()} parsed records will be deleted for file ${fileName}"
-            ezproxyHosts.each {
-                EzproxyHosts.get(it.id).delete()
-            }
-//            EzproxyHosts.withNewTransaction {
-//                EzproxyHosts.findAllByFileName(params.id) {EzproxyHosts host ->
-//                    host.delete(flush: true, failOnError: true)
-//                    log.info "deleting ezproxy hosts ${it.id}"
-//                }
-//            }
+            ezproxyService.deleteDataForFile(fileName)
         }
 
         redirect(action: "index")

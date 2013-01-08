@@ -37,22 +37,8 @@ class EzproxyJob extends MetridocJob {
 
         target(ezMaintenance: "checking md5 of files") {
             getFiles {it.done}.each {
-                File file = it.file
-                def stream = file.newInputStream()
-                def hex = DigestUtils.sha256Hex(stream)
-                IOUtils.closeQuietly(stream)
-
-                EzFileMetaData.withNewTransaction {
-                    def fileName = file.name
-                    def data = EzFileMetaData.findByFileName(fileName)
-                    if (data) {
-                        if (hex != data.sha256) {
-                            EzFileMetaData.get(data.id).delete()
-                            EzproxyHosts.executeUpdate("delete EzproxyHosts e where e.fileName = :fileName", [fileName: fileName])
-                        }
-                    }
-                }
-                hex = null
+                File fileToDelete = it.file
+                ezproxyService.deleteDataForFileIfHashNotCorrect(fileToDelete)
             }
         }
 

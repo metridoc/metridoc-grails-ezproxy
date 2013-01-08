@@ -12,8 +12,30 @@ import org.quartz.core.QuartzScheduler
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
 @TestFor(EzproxyService)
-@Mock(EzProperties)
+@Mock([EzProperties, EzproxyHosts, EzFileMetaData])
 class EzproxyServiceTests {
+
+    @Test
+    void "if the hash is incorrect, the file data is deleted"() {
+        def record = new EzproxyHosts().createDefaultInvalidRecord()
+        def file = File.createTempFile("foo", "bar")
+        record.fileName = file.name
+        record.save(failOnError: true)
+
+        record = new EzproxyHosts().createDefaultInvalidRecord()
+        record.fileName = "bar"
+        record.save(failOnError: true)
+
+        assert 2 == EzproxyHosts.count()
+        new EzFileMetaData(fileName: file.name, sha256: "kashjdf").save(failOnError: true)
+        assert 1 == EzFileMetaData.count()
+
+        file.write("some random text")
+        service.deleteDataForFileIfHashNotCorrect(file)
+
+        assert 1 == EzproxyHosts.count()
+        assert 0 == EzFileMetaData.count()
+    }
 
     @Before
     void "create a mock quartzScheduler"() {

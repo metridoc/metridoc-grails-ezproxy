@@ -38,12 +38,6 @@ environments {
             url = "jdbc:h2:mem:devEzproxy;MVCC=TRUE;LOCK_TIMEOUT=10000"
             logSql = false
         }
-
-        dataSource_admin {
-            dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
-            url = "jdbc:h2:mem:devAdmin;MVCC=TRUE;LOCK_TIMEOUT=10000"
-            logSql = true
-        }
     }
     test {
         dataSource {
@@ -54,20 +48,9 @@ environments {
     }
     production {
 
-        dataSource_admin {
-            pooled = true
-            dbCreate = "none"
-            url = "jdbc:mysql://localhost:3306/admin"
-            driverClassName = "com.mysql.jdbc.Driver"
-            dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-            username = "root"
-            password = "password"
-            properties(productionDataSourceProperties)
-        }
-
         dataSource {
             pooled = true
-            dbCreate = "none"
+            dbCreate = "update"
             url = "jdbc:mysql://localhost:3306/prod_ezproxy"
             driverClassName = "com.mysql.jdbc.Driver"
             dialect = org.hibernate.dialect.MySQL5InnoDBDialect

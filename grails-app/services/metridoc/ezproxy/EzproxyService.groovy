@@ -1,5 +1,8 @@
 package metridoc.ezproxy
 
+import org.apache.commons.codec.digest.DigestUtils
+import org.apache.commons.io.IOUtils
+
 import static org.apache.commons.lang.SystemUtils.*
 import grails.util.Holders
 import org.quartz.JobKey
@@ -117,7 +120,7 @@ class EzproxyService {
         results.rows = []
         results.headers = []
 
-        getRawSampleData().eachLine {line, lineNumber ->
+        getRawSampleData().eachLine { line, lineNumber ->
             def row = parserObject.parse(line, lineNumber + 1, "ezproxy.file") as Map
             if (!results.headers) {
                 results.headers = row.keySet()
@@ -268,6 +271,31 @@ class EzproxyService {
         def property = activeJobProperty
         property.propertyValue = value.toString()
         property.save(failOnError: true)
+    }
+
+    void deleteDataForFileIfHashNotCorrect(File file) {
+        def stream = file.newInputStream()
+        def hex = DigestUtils.sha256Hex(stream)
+        IOUtils.closeQuietly(stream)
+
+        def fileName = file.name
+        def data = EzFileMetaData.findByFileName(fileName)
+        if (data) {
+            if (hex != data.sha256) {
+                deleteDataForFile(fileName)
+            }
+        }
+
+    }
+
+    void deleteDataForFile(String fileName) {
+        EzFileMetaData.withNewTransaction {
+            def data = EzFileMetaData.findByFileName(fileName)
+            EzFileMetaData.get(data.id).delete()
+            EzproxyHosts.where {
+                fileName == fileName
+            }.deleteAll()
+        }
     }
 }
 
