@@ -51,7 +51,19 @@ abstract class EzproxyBase<T extends EzproxyBase> {
 
     abstract void finishedFile(String fileName)
 
-    abstract boolean accept(Map record)
+    boolean accept(Map record) {
+        String ezproxyId = record.ezproxyId
+        def hasEzproxyId = ezproxyId != null && ezproxyId.trim() != "-" && ezproxyId.trim().size() > 1
+        def hasUrl
+        try {
+            new URL(record.url as String)
+            hasUrl = true
+        } catch (MalformedURLException ex) {
+            //do nothing
+        }
+
+        return hasUrl && hasEzproxyId
+    }
 
     void loadValues(Map record) {
         loadValues(record, DEFAULT_ONE_TO_ONE_PROPERTIES)
@@ -83,5 +95,37 @@ abstract class EzproxyBase<T extends EzproxyBase> {
                 proxyDay = calendar.get(Calendar.DAY_OF_MONTH)
             }
         }
+    }
+
+    protected boolean alreadyProcessed(Map<String, Set<String>> cache, String ezproxyId, String itemName,
+                                             String item) {
+        if (notInCache(cache, ezproxyId, item)) {
+            def storedItem = this.getClass()."findByEzproxyIdAnd${itemName.capitalize()}"(ezproxyId, item)
+            return storedItem != null
+        }
+
+        return true
+    }
+
+    protected static boolean notInCache(Map<String, Set<String>> cache, String ezproxyId,
+           String item) {
+
+        boolean result
+        def processedItems = cache[ezproxyId]
+        if (processedItems) {
+            if (processedItems.contains(item)) {
+                result = false
+            } else {
+                result = true
+                processedItems.add(item)
+            }
+        } else {
+            processedItems = [] as Set<String>
+            cache[ezproxyId] = processedItems
+            processedItems.add(item)
+            result = true
+        }
+
+        return result
     }
 }

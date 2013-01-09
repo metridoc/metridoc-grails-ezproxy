@@ -58,6 +58,7 @@ class EzDoiTests {
 
     static void urlIsAUrlTest(Map record, boolean expected) {
         doTest("urlIsAUrl", record, expected)
+        record.ezproxyId = "foo"
         assert expected == new EzDoi().accept(record)
     }
 

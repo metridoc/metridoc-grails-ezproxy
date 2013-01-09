@@ -27,6 +27,7 @@ class GormEzproxyFileServiceTests {
         service.processFile(file, parser)
         def ezproxyIds = ["96CV6QQh0Mclz5Z", "vO07NtNOHwIciIH"] as Set
         def hosts = EzproxyHosts.list()
+        assert 2 == hosts.size()
         hosts.each {
             assert ezproxyIds.remove(it.ezproxyId)
             assert it.valid

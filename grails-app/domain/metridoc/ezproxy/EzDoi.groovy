@@ -2,6 +2,7 @@ package metridoc.ezproxy
 
 class EzDoi extends EzproxyBase<EzDoi> {
 
+    static Map<String, Set<String>> doiByEzproxyId = Collections.synchronizedMap([:])
     static transients = ["refUrl", "ipAddress", "patronId", "state", "country", "city", "refUrlHost", "dept", "organization", "rank", "url"]
     String doi
     public static final EZ_DOI_ONE_TO_ONE
@@ -16,8 +17,16 @@ class EzDoi extends EzproxyBase<EzDoi> {
         EZ_DOI_ONE_TO_ONE.addAll(DEFAULT_ONE_TO_ONE_PROPERTIES)
     }
 
+    static mapping = {
+        fileName(index: 'idx_ez_doi_file_name')
+        valid(index: "idx_ez_doi_valid")
+        urlHost(index: "idx_ez_doi_url_host")
+        ezproxyId(index: "idx_ez_doi_ezproxy_id")
+        doi(index: "idx_ez_doi_doi")
+    }
+
     static constraints = {
-        ezproxyId(maxSize: 50)
+        ezproxyId(maxSize: 50, unique: 'doi')
         validationError(maxSize: Integer.MAX_VALUE, nullable: true)
         doi(maxSize: 150)
     }
@@ -30,7 +39,14 @@ class EzDoi extends EzproxyBase<EzDoi> {
 
     @Override
     boolean accept(Map record) {
-        hasUrl(record) && hasDoi(record) && urlIsAUrl(record)
+        boolean hasEzproxyIdAndUrl = super.accept(record)
+        boolean notProcessed = false
+        boolean hasDoi = hasDoi(record)
+        if (hasEzproxyIdAndUrl && hasDoi) {
+            notProcessed = !alreadyProcessed(doiByEzproxyId, record.ezproxyId, "doi", record.doi)
+        }
+        def result = hasEzproxyIdAndUrl && hasDoi && notProcessed
+        return result
     }
 
     @Override
@@ -46,7 +62,7 @@ class EzDoi extends EzproxyBase<EzDoi> {
 
     @Override
     void finishedFile(String fileName) {
-        //do nothing
+        doiByEzproxyId.clear()
     }
 
     private static boolean hasUrl(Map record) {

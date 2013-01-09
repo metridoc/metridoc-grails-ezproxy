@@ -7,9 +7,9 @@ class EzproxyHosts extends EzproxyBase<EzproxyHosts> {
     static transients = ["hostsByEzproxyId", "url", "refUrl"]
     static mapping = {
         fileName(index: 'idx_ez_hosts_file_name')
-        ezproxyId(index: "idx_ez_hosts_ezproxy_id")
         valid(index: "idx_ez_hosts_valid")
         urlHost(index: "idx_ez_hosts_url_host")
+        ezproxyId(index: "idx_ez_hosts_ezproxy_id")
         tablePerHierarchy(false)
     }
 
@@ -21,7 +21,7 @@ class EzproxyHosts extends EzproxyBase<EzproxyHosts> {
         country(maxSize: 50, nullable: true)
         state(maxSize: 50, nullable: true)
         city(maxSize: 50, nullable: true)
-        ezproxyId(maxSize: 50)
+        ezproxyId(unique:'urlHost', maxSize: 50)
         validationError(maxSize: Integer.MAX_VALUE, nullable: true)
         dept(nullable: true)
         rank(nullable: true)
@@ -36,34 +36,14 @@ class EzproxyHosts extends EzproxyBase<EzproxyHosts> {
 
     @Override
     boolean accept(Map record) {
-        def ezproxyId = record.ezproxyId
-        def hasEzproxyId = ezproxyId != null && ezproxyId.trim() != "-" && ezproxyId.trim().size() > 1
-        def hasUrl
-        def url = null
-        try {
-            url = new URL(record.url)
-            hasUrl = true
-        } catch (MalformedURLException ex) {
-            //do nothing
-        }
+        boolean hasEzproxyIdAndUrl = super.accept(record)
 
-        def alreadyProcessed = false
-        if (hasUrl && hasEzproxyId) {
-            def host = url.host
-            def localHostsByEzproxyId = hostsByEzproxyId
-            alreadyProcessed = localHostsByEzproxyId[ezproxyId] ? localHostsByEzproxyId[ezproxyId].contains(host) : false
-            if (!alreadyProcessed) {
-                alreadyProcessed = EzproxyHosts.findByEzproxyIdAndUrlHost(ezproxyId, host) ? true : false
-                def hostSet = localHostsByEzproxyId[ezproxyId]
-                if (hostSet == null) {
-                    localHostsByEzproxyId[ezproxyId] = [] as Set
-                    hostSet = localHostsByEzproxyId[ezproxyId]
-                }
-
-                hostSet.add(host)
-            }
+        def processed = false
+        if (hasEzproxyIdAndUrl) {
+            String host = new URL(record.url as String).host
+            processed = alreadyProcessed(hostsByEzproxyId, ezproxyId, "urlHost", host)
         }
-        def result = hasEzproxyId && hasUrl && !alreadyProcessed
+        def result = hasEzproxyIdAndUrl && !processed
 
         if (result) {
             if (log.isDebugEnabled()) {
