@@ -16,7 +16,7 @@ class GormEzproxyFileService implements EzproxyFileService {
         invalidRecord.lineNumber = lineNumber
         invalidRecord.validationError = error.message
 
-        if (!error instanceof AssertionError) {
+        if (!(error instanceof AssertionError)) {
             invalidRecord.error = true
         }
 
@@ -24,13 +24,13 @@ class GormEzproxyFileService implements EzproxyFileService {
             invalidRecord.save(failOnError: true)
         }
 
-        if (!error instanceof AssertionError) {
+        if (!(error instanceof AssertionError)) {
             throw error
         }
 
     }
 
-    void handleValidationError(EzproxyHosts object) {
+    void handleValidationError(EzproxyBase object) {
         if (object.errors.fieldErrorCount) {
             def error = object.errors.fieldErrors[0]
             def message = "Field error in object '" + error.objectName + "' on field '" + error.field +
@@ -40,7 +40,7 @@ class GormEzproxyFileService implements EzproxyFileService {
 
             invalidRecord.validationError = message
             invalidRecord.save(failOnError: true)
-            log.warn "saved invalid record ${object} for file ${object.fileName} at line ${object.lineNumber}"
+            log.warn "saved invalid record ${object} for file ${object.fileName} at line ${object.lineNumber} with validation error message: ${message}"
         } else {
             object.save(failOnError: true)
         }
@@ -62,8 +62,9 @@ class GormEzproxyFileService implements EzproxyFileService {
             def hex = DigestUtils.sha256Hex(streamToDigest)
             IOUtils.closeQuietly(streamToDigest)
 
+            def fileName = file.name
             EzproxyHosts.withNewTransaction {
-                new EzFileMetaData(fileName: file.name, sha256: hex).save(failOnError: true)
+                new EzFileMetaData(fileName: fileName, sha256: hex).save(failOnError: true)
                 log.info "stored metaData of file $file"
                 def stream = new FileInputStream(file)
                 if (file.name.endsWith(".gz")) {
@@ -80,7 +81,13 @@ class GormEzproxyFileService implements EzproxyFileService {
                     }
                 }
             }
-            EzproxyHosts.hostsByEzproxyId.clear()
+            //TODO: use event based programming here instead?
+            grailsApplication.domainClasses.each {
+                def instance = it.newInstance()
+                if (instance instanceof EzproxyBase) {
+                    instance.finishedFile(fileName)
+                }
+            }
             log.info "finished processing file $file"
         } catch (Throwable e) {
             def data = EzFileMetaData.findByFileName(file.name)
@@ -94,26 +101,33 @@ class GormEzproxyFileService implements EzproxyFileService {
     protected void process(Map<String, Object> record) {
 
 
-        def gormRecord = new EzproxyHosts()
-        if (gormRecord.accept(record)) {
-            gormRecord.loadValues(record)
-            boolean valid = gormRecord.validate()
-            if (!valid) {
-                handleValidationError(gormRecord)
-            } else {
-                gormRecord.save(failOnError: true)
-                if (log.isDebugEnabled()) {
-                    log.debug "saved record ${gormRecord} for file ${gormRecord.fileName} and line ${gormRecord.lineNumber}"
+        def linesLogged = [] as Set
+        grailsApplication.domainClasses.each {
+            def gormRecord = it.newInstance()
+            if (gormRecord instanceof EzproxyBase) {
+
+                if (gormRecord.accept(record)) {
+                    gormRecord.loadValues(record)
+                    boolean valid = gormRecord.validate()
+                    if (!valid) {
+                        handleValidationError(gormRecord)
+                    } else {
+                        gormRecord.save(failOnError: true)
+                        if (log.isDebugEnabled()) {
+                            log.debug "saved record ${gormRecord} for file ${gormRecord.fileName} and line ${gormRecord.lineNumber} for gorm object ${gormRecord.getClass()}"
+                        }
+                    }
+                }
+
+                def lineNumber = record.lineNumber
+                def fileName = record.fileName
+                if (lineNumber % 10000 == 0  && !linesLogged.contains(lineNumber)) {
+                    log.info "$lineNumber lines have been processed for file $fileName"
+                    linesLogged << lineNumber
                 }
             }
         }
 
-        def lineNumber = record.lineNumber
-        def fileName = record.fileName
-
-        if (lineNumber % 10000 == 0) {
-            log.info "$lineNumber lines have been processed for file $fileName"
-        }
 
 
     }

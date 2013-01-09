@@ -49,6 +49,8 @@ abstract class EzproxyBase<T extends EzproxyBase> {
         )
     }
 
+    abstract void finishedFile(String fileName)
+
     abstract boolean accept(Map record)
 
     void loadValues(Map record) {

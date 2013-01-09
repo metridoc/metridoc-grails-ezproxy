@@ -2,7 +2,7 @@ package metridoc.ezproxy
 
 class EzDoi extends EzproxyBase<EzDoi> {
 
-    static transients = ["refUrl", "ipAddress", "patronId", "state", "country", "city", "urlHost", "refUrlHost", "ezproxyId", "dept", "organization", "rank"]
+    static transients = ["refUrl", "ipAddress", "patronId", "state", "country", "city", "refUrlHost", "dept", "organization", "rank", "url"]
     String doi
     public static final EZ_DOI_ONE_TO_ONE
     Boolean resolvableDoi = false
@@ -17,16 +17,15 @@ class EzDoi extends EzproxyBase<EzDoi> {
     }
 
     static constraints = {
-        url(maxSize: Integer.MAX_VALUE)
         ezproxyId(maxSize: 50)
-        resolvableDoi()
         validationError(maxSize: Integer.MAX_VALUE, nullable: true)
+        doi(maxSize: 150)
     }
 
     @Override
     void loadValues(Map record) {
         record.doi = extractDoi(record.url)
-        super.loadValues(record, DEFAULT_ONE_TO_ONE_PROPERTIES)    //To change body of overridden methods use File | Settings | File Templates.
+        super.loadValues(record, EZ_DOI_ONE_TO_ONE)    //To change body of overridden methods use File | Settings | File Templates.
     }
 
     @Override
@@ -43,6 +42,11 @@ class EzDoi extends EzproxyBase<EzDoi> {
         }
 
         return doi
+    }
+
+    @Override
+    void finishedFile(String fileName) {
+        //do nothing
     }
 
     private static boolean hasUrl(Map record) {
@@ -74,6 +78,7 @@ class EzDoi extends EzproxyBase<EzDoi> {
     private static String extractDoi(String url) {
         String result = null
         int idxBegin = url.indexOf(DOI_PROPERTY_PATTERN)
+        boolean
         if (idxBegin > -1) {
             String doiBegin = url.substring(idxBegin + 4)
             int idxEnd = doiBegin.indexOf('&') > 0 ? doiBegin.indexOf('&') : doiBegin.size()
@@ -86,6 +91,12 @@ class EzDoi extends EzproxyBase<EzDoi> {
                 int slashInd = doiBegin.indexOf("/");
                 slashInd = slashInd > -1 ? doiBegin.indexOf("/", slashInd + 1) : -1;
                 int idxEnd = doiBegin.indexOf('?')
+                if (idxEnd == -1) {
+                    //case where doi is buried in embedded url
+                    doiBegin = URLDecoder.decode(doiBegin, "utf-8")
+                    idxEnd = doiBegin.indexOf('&')
+                    slashInd = slashInd > -1 ? doiBegin.indexOf("/", slashInd + 1) : -1; // compute again in case of encoding
+                }
                 if (idxEnd > -1) {
                     if (slashInd > -1) {
                         idxEnd = [slashInd, idxEnd].min()

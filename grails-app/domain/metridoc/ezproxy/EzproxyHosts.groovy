@@ -30,6 +30,11 @@ class EzproxyHosts extends EzproxyBase<EzproxyHosts> {
     }
 
     @Override
+    void finishedFile(String fileName) {
+        hostsByEzproxyId.clear()
+    }
+
+    @Override
     boolean accept(Map record) {
         def ezproxyId = record.ezproxyId
         def hasEzproxyId = ezproxyId != null && ezproxyId.trim() != "-" && ezproxyId.trim().size() > 1

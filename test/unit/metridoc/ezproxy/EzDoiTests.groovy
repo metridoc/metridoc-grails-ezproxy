@@ -44,6 +44,8 @@ class EzDoiTests {
         //odd ball cases
         assert '10.' == EzDoi.extractDoi('http://foo.com10.')
         assert '10.' == EzDoi.extractDoi('http://foo.com?doi=10.&stuff')
+        assert '10.1038/nrg2628' == EzDoi.extractDoi('http://www.ncbi.nlm.nih.gov:80/stat?link_href=http%3A%2F%2Fproxy.library.upenn.edu%3A2102%2F10.1038%2Fnrg2628&maxscroll_x=0&maxscroll_y=0')
+        assert '10.1 r102' == EzDoi.extractDoi("http://www.oxfordmusiconline.com:80/__utm.gif?utmwv=1&utmn=1777069989&utmcs=UTF-8&utmsr=1920x1200&utmsc=24-bit&utmul=en-us&utmje=1&utmfl=10.1%20r102&utmdt=Search%20results")
     }
 
     static void hasUrlTest(Map record, boolean expected) {

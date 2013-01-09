@@ -8,7 +8,7 @@ import org.junit.Test
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
 @TestFor(GormEzproxyFileService)
-@Mock([EzproxyHosts, EzFileMetaData])
+@Mock([EzproxyHosts, EzFileMetaData, EzDoi])
 class GormEzproxyFileServiceTests {
 
     @Test
@@ -20,7 +20,8 @@ class GormEzproxyFileServiceTests {
         def parser = ezproxyService.buildParser(EzproxyUtils.DEFAULT_PARSER, EzproxyUtils.DEFAULT_PARSER_TEMPLATE)
         service.grailsApplication = [
                 domainClasses: [
-                        [clazz: EzproxyHosts]
+                        [newInstance: { new EzproxyHosts() }],
+                        [newInstance: { new EzDoi() }]
                 ]
         ]
         service.processFile(file, parser)
@@ -32,6 +33,8 @@ class GormEzproxyFileServiceTests {
             assert null == it.validationError
         }
 
+        assert 1 == EzDoi.count()
+        assert EzDoi.list().get(0).valid
         assert ezproxyIds.isEmpty()
     }
 
