@@ -1,5 +1,7 @@
 package metridoc.ezproxy
 
+import org.apache.commons.lang.SystemUtils
+
 /**
  * Created with IntelliJ IDEA.
  * User: tbarker
@@ -31,8 +33,8 @@ result.url = data[8]
 result.ezproxyId = data[13]
 """
 
-    static final DEFAULT_PARSER_TEMPLATE = {parserText ->
-"""
+    static final DEFAULT_PARSER_TEMPLATE = { parserText ->
+        """
     import java.text.*
     import org.slf4j.*
     import metridoc.utils.*
@@ -52,5 +54,7 @@ result.ezproxyId = data[13]
     }
 """
     }
+
+    static final DEFAULT_FILE_LOCATION = "${SystemUtils.USER_HOME}/.metridoc/files/ezproxy"
 
 }

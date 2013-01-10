@@ -5,14 +5,14 @@ import org.quartz.JobKey
 
 class EzproxyJob extends MetridocJob {
 
-    static HALF_HOUR = 1000 * 60 * 30
+    static TEN_MINUTES = 1000 * 60 * 10
     def ezproxyService
     def gormEzproxyFileService
     final static TRIGGER_NAME = "parse ezproxy files"
     def quartzScheduler
 
     static triggers = {
-        simple repeatInterval: HALF_HOUR, name: TRIGGER_NAME
+        simple repeatInterval: TEN_MINUTES, name: TRIGGER_NAME
     }
 
     private getFiles(Closure condition) {
