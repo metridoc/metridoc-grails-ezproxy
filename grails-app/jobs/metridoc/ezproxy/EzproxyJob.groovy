@@ -34,7 +34,7 @@ class EzproxyJob extends MetridocJob {
         }
 
         target(ezMaintenance: "checking md5 of files") {
-            getFiles { it.done }.each {
+            getFiles { it.done || it.error }.each {
                 File fileToDelete = it.file
                 ezproxyService.deleteDataForFileIfHashNotCorrect(fileToDelete)
                 ezproxyService.deleteDataForFileIfThereIsAnError(fileToDelete)
