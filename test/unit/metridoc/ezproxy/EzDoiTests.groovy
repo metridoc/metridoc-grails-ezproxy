@@ -20,12 +20,12 @@ class EzDoiTests {
     @Test
     void "has doi returns true if a doi exists in url, false otherwise, input is a valid non empty string"() {
         hasDoiTest([url: "http://foo.com"], false)
-        hasDoiTest([url: "http://foo.com10."], true)
+        hasDoiTest([url: "http://foo.com10.1234"], true)
     }
 
     @Test
     void "is a url returns true if the url is actually a url, it is assumed that url is a string that contains the doi pattern"() {
-        urlIsAUrlTest([url: "http://foo.com10."], true)
+        urlIsAUrlTest([url: "http://foo.com10.1234"], true)
         urlIsAUrlTest([url: "foo.com10."], false)
     }
 
@@ -46,6 +46,17 @@ class EzDoiTests {
         assert '10.' == EzDoi.extractDoi('http://foo.com?doi=10.&stuff')
         assert '10.1038/nrg2628' == EzDoi.extractDoi('http://www.ncbi.nlm.nih.gov:80/stat?link_href=http%3A%2F%2Fproxy.library.upenn.edu%3A2102%2F10.1038%2Fnrg2628&maxscroll_x=0&maxscroll_y=0')
         assert '10.1 r102' == EzDoi.extractDoi("http://www.oxfordmusiconline.com:80/__utm.gif?utmwv=1&utmn=1777069989&utmcs=UTF-8&utmsr=1920x1200&utmsc=24-bit&utmul=en-us&utmje=1&utmfl=10.1%20r102&utmdt=Search%20results")
+    }
+
+    @Test
+    void "test aready processed"() {
+        def cache = [:]
+        assert false == new EzDoi().alreadyProcessed(cache, "foo", "doi", "10.1234")
+        def ezDoi =  new EzDoi().createDefaultInvalidRecord()
+        ezDoi.doi = "10.1212"
+        ezDoi.ezproxyId = "foo"
+        ezDoi.save(failOnError: true)
+        assert new EzDoi().alreadyProcessed(cache, "foo", "doi", "10.1212")
     }
 
     static void hasUrlTest(Map record, boolean expected) {

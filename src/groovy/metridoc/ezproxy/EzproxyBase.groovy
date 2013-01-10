@@ -35,6 +35,7 @@ abstract class EzproxyBase<T extends EzproxyBase> {
     String dept
     String organization
     String rank
+    public static final String APACHE_NULL = "-"
 
     T createDefaultInvalidRecord() {
         (T) this.class.newInstance(
@@ -99,6 +100,7 @@ abstract class EzproxyBase<T extends EzproxyBase> {
 
     protected boolean alreadyProcessed(Map<String, Set<String>> cache, String ezproxyId, String itemName,
                                              String item) {
+        assert item != null && item.trim() != APACHE_NULL : "the index item must not be null"
         if (notInCache(cache, ezproxyId, item)) {
             def storedItem = this.getClass()."findByEzproxyIdAnd${itemName.capitalize()}"(ezproxyId, item)
             return storedItem != null

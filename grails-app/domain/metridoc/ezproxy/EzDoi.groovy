@@ -1,16 +1,19 @@
 package metridoc.ezproxy
 
+import java.util.regex.Pattern
+
 class EzDoi extends EzproxyBase<EzDoi> {
 
     static Map<String, Set<String>> doiByEzproxyId = Collections.synchronizedMap([:])
     static transients = ["refUrl", "ipAddress", "patronId", "state", "country", "city", "refUrlHost", "dept", "organization", "rank", "url"]
     String doi
-    public static final EZ_DOI_ONE_TO_ONE
+    public static final List EZ_DOI_ONE_TO_ONE
     Boolean resolvableDoi = false
     Boolean processedDoi = false
-    public static final DOI_PATTERN = "10."
+    public static final DOI_PREFIX_PATTERN = "10."
     public static final DOI_PROPERTY_PATTERN = "doi=10."
     public static final APACHE_NULL = "-"
+    public static final DOI_FULL_PATTERN = Pattern.compile(/10\.\d{4}/)
 
     static {
         EZ_DOI_ONE_TO_ONE = ["doi"]
@@ -33,7 +36,6 @@ class EzDoi extends EzproxyBase<EzDoi> {
 
     @Override
     void loadValues(Map record) {
-        record.doi = extractDoi(record.url)
         super.loadValues(record, EZ_DOI_ONE_TO_ONE)    //To change body of overridden methods use File | Settings | File Templates.
     }
 
@@ -43,9 +45,11 @@ class EzDoi extends EzproxyBase<EzDoi> {
         boolean notProcessed = false
         boolean hasDoi = hasDoi(record)
         if (hasEzproxyIdAndUrl && hasDoi) {
+            record.doi = extractDoi(record.url as String)
             notProcessed = !alreadyProcessed(doiByEzproxyId, record.ezproxyId, "doi", record.doi)
         }
         def result = hasEzproxyIdAndUrl && hasDoi && notProcessed
+
         return result
     }
 
@@ -77,7 +81,13 @@ class EzDoi extends EzproxyBase<EzDoi> {
     private static boolean hasDoi(Map record) {
         String url = record.url
 
-        url.contains(DOI_PATTERN)
+        int indexOfDoiPrefix = url.indexOf(DOI_PREFIX_PATTERN)
+        if (indexOfDoiPrefix > -1) {
+            def doiMatcher = DOI_FULL_PATTERN.matcher(url.substring(indexOfDoiPrefix))
+            return doiMatcher.lookingAt()
+        }
+
+        return false
     }
 
     private static boolean urlIsAUrl(Map record) {
@@ -100,7 +110,7 @@ class EzDoi extends EzproxyBase<EzDoi> {
             int idxEnd = doiBegin.indexOf('&') > 0 ? doiBegin.indexOf('&') : doiBegin.size()
             result = URLDecoder.decode(doiBegin.substring(0, idxEnd), "utf-8")
         } else {
-            idxBegin = url.indexOf(DOI_PATTERN)
+            idxBegin = url.indexOf(DOI_PREFIX_PATTERN)
             if (idxBegin > -1) {
                 String doiBegin = url.substring(idxBegin)
                 //find index of 2nd slash
