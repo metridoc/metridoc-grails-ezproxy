@@ -283,16 +283,19 @@ class EzproxyService {
         }
     }
 
-    void deleteDataForFile(String fileName) {
+    void deleteDataForFile(String nameOfFileToDelete) {
         EzFileMetaData.withNewTransaction {
-            def data = EzFileMetaData.findByFileName(fileName)
+            def data = EzFileMetaData.findByFileName(nameOfFileToDelete)
             EzFileMetaData.get(data.id).delete()
-            grailsApplication.domainClasses.each {
+            def domainClasses = grailsApplication.domainClasses
+            domainClasses.each {
                 def gormRecord = it.newInstance()
+
                 if (gormRecord instanceof EzproxyBase) {
-                    gormRecord.getClass().where {
-                        fileName == fileName
-                    }.deleteAll()
+                    List recordsToDelete = gormRecord.getClass().findAllByFileName(nameOfFileToDelete)
+                    recordsToDelete.each {
+                        it.delete()
+                    }
                 }
             }
         }

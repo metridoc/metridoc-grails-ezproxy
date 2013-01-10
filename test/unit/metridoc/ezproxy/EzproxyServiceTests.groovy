@@ -1,12 +1,9 @@
 package metridoc.ezproxy
 
-
-
-import grails.test.mixin.*
-import org.junit.*
-import org.springframework.core.io.ClassPathResource
-import org.springframework.util.ClassUtils
-import org.quartz.core.QuartzScheduler
+import grails.test.mixin.Mock
+import grails.test.mixin.TestFor
+import org.junit.Before
+import org.junit.Test
 
 /**
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
@@ -19,6 +16,10 @@ class EzproxyServiceTests {
     void "if the hash is incorrect, the file data is deleted"() {
         def record = new EzproxyHosts().createDefaultInvalidRecord()
         def file = File.createTempFile("foo", "bar")
+        service.grailsApplication = [
+                domainClasses: [EzproxyHosts]
+        ]
+
         record.fileName = file.name
         record.save(failOnError: true)
 
@@ -40,7 +41,7 @@ class EzproxyServiceTests {
     @Before
     void "create a mock quartzScheduler"() {
         service.quartzScheduler = [
-            resumeJob: {jobKey-> /* do nothing */}
+                resumeJob: { jobKey -> /* do nothing */ }
         ]
     }
 
@@ -53,7 +54,7 @@ class EzproxyServiceTests {
 
     @Test
     void "creating a parser to parse data should be executable"() {
-        def template = {parserText ->
+        def template = { parserText ->
             """
             class EzproxyParser {
                     def applicationContext
@@ -86,7 +87,7 @@ class EzproxyServiceTests {
     }
 
     @Test
-    void "activating the job will toggle the the ezproperty to true" () {
+    void "activating the job will toggle the the ezproperty to true"() {
         assert !service.isJobActive()
         service.activateEzproxyJob()
         assert service.isJobActive()

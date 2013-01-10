@@ -18,7 +18,11 @@ class EzproxyAdminControllerTests {
     @Test
     void "file data and ezhost data should be deleted when deleteFileData is called"() {
         controller.params.id = "foo"
-        controller.ezproxyService = new EzproxyService()
+        def grailsApplication = [
+                domainClasses: [EzproxyHosts]
+        ]
+        controller.ezproxyService = new EzproxyService(grailsApplication: grailsApplication)
+
         def host = new EzproxyHosts().createDefaultInvalidRecord()
         host.fileName = "foo"
         host.save(failOnError: true)
