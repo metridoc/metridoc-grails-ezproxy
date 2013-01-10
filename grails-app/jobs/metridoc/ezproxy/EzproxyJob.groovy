@@ -1,9 +1,7 @@
 package metridoc.ezproxy
 
 import metridoc.core.MetridocJob
-import org.apache.commons.codec.digest.DigestUtils
 import org.quartz.JobKey
-import org.apache.commons.io.IOUtils
 
 class EzproxyJob extends MetridocJob {
 
@@ -36,14 +34,15 @@ class EzproxyJob extends MetridocJob {
         }
 
         target(ezMaintenance: "checking md5 of files") {
-            getFiles {it.done}.each {
+            getFiles { it.done }.each {
                 File fileToDelete = it.file
                 ezproxyService.deleteDataForFileIfHashNotCorrect(fileToDelete)
+                ezproxyService.deleteDataForFileIfThereIsAnError(fileToDelete)
             }
         }
 
         target(processingEzproxyFiles: "processing ezproxy files") {
-            def files = getFiles {!it.done}
+            def files = getFiles { !it.done }
 
             boolean hasFilesAndParser = true
             if (!files) {

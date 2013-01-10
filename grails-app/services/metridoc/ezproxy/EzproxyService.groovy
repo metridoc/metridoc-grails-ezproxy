@@ -2,10 +2,10 @@ package metridoc.ezproxy
 
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.IOUtils
-
-import static org.apache.commons.lang.SystemUtils.*
-import grails.util.Holders
 import org.quartz.JobKey
+
+import static org.apache.commons.lang.SystemUtils.FILE_SEPARATOR
+import static org.apache.commons.lang.SystemUtils.USER_HOME
 
 /**
  * base ezproxy service that handles maintaining / storing parsers and raw data
@@ -275,13 +275,26 @@ class EzproxyService {
 
     }
 
+    void deleteDataForFileIfThereIsAnError(File file) {
+        def fileName = file.name
+        def error = EzproxyHosts.findByFileNameAndError(fileName, true)
+        if (error) {
+            deleteDataForFile(fileName)
+        }
+    }
+
     void deleteDataForFile(String fileName) {
         EzFileMetaData.withNewTransaction {
             def data = EzFileMetaData.findByFileName(fileName)
             EzFileMetaData.get(data.id).delete()
-            EzproxyHosts.where {
-                fileName == fileName
-            }.deleteAll()
+            grailsApplication.domainClasses.each {
+                def gormRecord = it.newInstance()
+                if (gormRecord instanceof EzproxyBase) {
+                    gormRecord.getClass().where {
+                        fileName == fileName
+                    }.deleteAll()
+                }
+            }
         }
     }
 }
