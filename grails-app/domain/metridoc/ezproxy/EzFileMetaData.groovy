@@ -4,8 +4,8 @@ class EzFileMetaData {
 
     String fileName
     String sha256
-    Boolean processing
-    Date processStarted
+    Boolean processing = false
+    Date processStarted = new Date()
 
     static mapping = {
         fileName(index: 'idx_ez_hosts_file_name')
