@@ -8,6 +8,12 @@ import org.junit.Test
 class EzDoiTests {
 
     @Test
+    void "default invalid record should be valid if inserted twice"() {
+        new EzDoi().createDefaultInvalidRecord().save()
+        new EzDoi().createDefaultInvalidRecord().save()
+    }
+
+    @Test
     void "if the record has a url then has url is true, otherwise false"() {
         hasUrlTest([:], false)
         hasUrlTest([url: StringUtils.EMPTY], false)

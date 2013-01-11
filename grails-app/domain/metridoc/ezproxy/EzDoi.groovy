@@ -1,5 +1,7 @@
 package metridoc.ezproxy
 
+import org.apache.commons.lang.math.RandomUtils
+
 import java.util.regex.Pattern
 
 class EzDoi extends EzproxyBase<EzDoi> {
@@ -57,9 +59,7 @@ class EzDoi extends EzproxyBase<EzDoi> {
     EzDoi createDefaultInvalidRecord() {
         EzDoi doi = (EzDoi) super.createDefaultInvalidRecord()
         doi.processedDoi = true
-        if (doi.doi == null) {
-            doi.doi = "ERROR"
-        }
+        doi.doi = UUID.randomUUID().toString() //to make it unique against ezproxy_id
 
         return doi
     }
