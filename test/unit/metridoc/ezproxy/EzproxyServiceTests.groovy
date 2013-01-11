@@ -9,7 +9,7 @@ import org.junit.Test
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
 @TestFor(EzproxyService)
-@Mock([EzProperties, EzproxyHosts, EzFileMetaData])
+@Mock([EzproxyHosts, EzFileMetaData, EzParserProperties])
 class EzproxyServiceTests {
 
     @Test
@@ -80,10 +80,8 @@ class EzproxyServiceTests {
     }
 
     @Test
-    void "a property entry should be added when checking if the job is activated or not and the property does not currently exist"() {
+    void "the job is not active by default"() {
         assert !service.isJobActive()
-        def activeProperty = EzProperties.findByPropertyName(EzproxyService.JOB_ACTIVE_PROPERTY_NAME)
-        assert activeProperty.propertyValue == "false"
     }
 
     @Test

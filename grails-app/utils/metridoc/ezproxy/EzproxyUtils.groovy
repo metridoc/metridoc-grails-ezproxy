@@ -33,8 +33,8 @@ result.url = data[8]
 result.ezproxyId = data[13]
 """
 
-    static final DEFAULT_PARSER_TEMPLATE = { parserText ->
-        """
+    static DEFAULT_PARSER_TEMPLATE = { parserText ->
+"""
     import java.text.*
     import org.slf4j.*
     import metridoc.utils.*

@@ -73,4 +73,17 @@ class EzproxyHostsTests {
         ezproxyHosts.loadValues([:])
         assert !ezproxyHosts.urlHost
     }
+
+    @Test
+    void "test already processed when item is NOT in cache but in the database"() {
+        def record = new EzproxyHosts().createDefaultInvalidRecord()
+        record.ezproxyId = "foo"
+        record.urlHost = "http://foo.com"
+        record.save()
+
+        assert 1 == EzproxyHosts.count()
+        def cache = [:]
+        assert new EzproxyHosts().alreadyProcessed(cache, "foo", "urlHost", "http://foo.com")
+        assert 1 == cache.size()
+    }
 }

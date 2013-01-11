@@ -1,12 +1,17 @@
 package metridoc.ezproxy
 
-import grails.util.Holders
+import org.apache.commons.lang.RandomStringUtils
 
 class EzParserProperties {
 
+    String crossRefEncryptionKey = RandomStringUtils.randomAlphanumeric(100)
+    String crossRefUserName = "user"
+    String crossRefPassword = "password"
+    Boolean encryptPatronInfo = false
+    Boolean anonymizePatronInfo = false
+    String fileFilter = ".*"
     String directory = EzproxyUtils.DEFAULT_FILE_LOCATION
     Boolean jobActivated = false
-    String ezproxyParserTemplate = EzproxyUtils.DEFAULT_PARSER_TEMPLATE
     String sampleLog = EzproxyUtils.DEFAULT_LOG_DATA
     String sampleParser = EzproxyUtils.DEFAULT_PARSER
     String encoding = "utf-8"
@@ -17,10 +22,10 @@ class EzParserProperties {
     }
 
     static constraints = {
-        ezproxyParserTemplate(maxSize: Integer.MAX_VALUE)
         sampleParser(maxSize: Integer.MAX_VALUE, nullable: true)
         sampleLog(maxSize: Integer.MAX_VALUE, nullable: true)
         directory(nullable: true)
+        fileFilter(nullable: true)
     }
 
     synchronized static EzParserProperties instance() {
@@ -33,25 +38,7 @@ class EzParserProperties {
     }
 
     private static initializeEzParserProperties() {
-        if (Holders.grailsApplication?.mergedConfig) {
-            def ezproxyConfig = Holders.grailsApplication.mergedConfig.metridoc.ezproxy
-            if (ezproxyConfig) {
-                if (EzParserProperties.count() == 0) {
-                    new EzParserProperties(
-                            sampleParser: ezproxyConfig.ezproxyParserTemplate ?: EzproxyUtils.DEFAULT_PARSER,
-                            sampleLog: ezproxyConfig.sampleLog ?: EzproxyUtils.DEFAULT_LOG_DATA,
-                            ezproxyParserTemplate: ezproxyConfig.ezproxyParserTemplate ?: EzproxyUtils.DEFAULT_PARSER_TEMPLATE,
-                            encoding: ezproxyConfig.encoding ?: "utf-8",
-                            directory: ezproxyConfig.directory ?: EzproxyUtils.DEFAULT_FILE_LOCATION
-                    ).save(flush: true, failOnError: true)
-                }
-
-            } else {
-                new EzParserProperties().save(flush: true, failOnError: true)
-            }
-        } else {
-            new EzParserProperties().save(flush: true, failOnError: true)
-        }
+        new EzParserProperties().save(flush: true, failOnError: true)
     }
 
 

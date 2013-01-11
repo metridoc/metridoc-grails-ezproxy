@@ -13,7 +13,7 @@ class EzDoi extends EzproxyBase<EzDoi> {
     public static final DOI_PREFIX_PATTERN = "10."
     public static final DOI_PROPERTY_PATTERN = "doi=10."
     public static final APACHE_NULL = "-"
-    public static final DOI_FULL_PATTERN = Pattern.compile(/10\.\d{4}/)
+    public static final DOI_FULL_PATTERN = Pattern.compile(/10\.\d+\//)
 
     static {
         EZ_DOI_ONE_TO_ONE = ["doi"]
@@ -83,10 +83,16 @@ class EzDoi extends EzproxyBase<EzDoi> {
 
     private static boolean hasDoi(Map record) {
         String url = record.url
-
+        String doiAtStart = null
         int indexOfDoiPrefix = url.indexOf(DOI_PREFIX_PATTERN)
         if (indexOfDoiPrefix > -1) {
-            def doiMatcher = DOI_FULL_PATTERN.matcher(url.substring(indexOfDoiPrefix))
+            doiAtStart = url.substring(indexOfDoiPrefix)
+            try {
+                doiAtStart = URLDecoder.decode(doiAtStart)
+            } catch (IllegalArgumentException ex) {
+
+            }
+            def doiMatcher = DOI_FULL_PATTERN.matcher(doiAtStart)
             return doiMatcher.lookingAt()
         }
 
@@ -111,7 +117,7 @@ class EzDoi extends EzproxyBase<EzDoi> {
         if (idxBegin > -1) {
             String doiBegin = url.substring(idxBegin + 4)
             int idxEnd = doiBegin.indexOf('&') > 0 ? doiBegin.indexOf('&') : doiBegin.size()
-            result = URLDecoder.decode(doiBegin.substring(0, idxEnd), "utf-8")
+            result = URLDecoder.decode(URLDecoder.decode(doiBegin.substring(0, idxEnd), "utf-8"), "utf-8") //double encoding
         } else {
             idxBegin = url.indexOf(DOI_PREFIX_PATTERN)
             if (idxBegin > -1) {
@@ -139,6 +145,16 @@ class EzDoi extends EzproxyBase<EzDoi> {
             }
         }
 
+        if (result && result.contains("/")) {
+            int startIndex = result.indexOf("/")
+            String suffix = result.substring(startIndex + 1, result.length())
+            int nextSlash = suffix.indexOf("/")
+            if (nextSlash > -1) {
+                result = result.substring(0, startIndex + nextSlash + 1)
+            }
+        } else {
+            result = null //must be garbage
+        }
         return result
     }
 }

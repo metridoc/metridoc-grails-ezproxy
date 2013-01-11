@@ -1,6 +1,7 @@
 package metridoc.ezproxy
 
 import org.apache.commons.lang.math.RandomUtils
+import org.slf4j.LoggerFactory
 
 /**
  * Created with IntelliJ IDEA.
@@ -10,7 +11,7 @@ import org.apache.commons.lang.math.RandomUtils
  * To change this template use File | Settings | File Templates.
  */
 abstract class EzproxyBase<T extends EzproxyBase> {
-
+    static final log = LoggerFactory.getLogger(EzproxyBase)
     static final DEFAULT_ONE_TO_ONE_PROPERTIES = ["patronId", "ipAddress", "lineNumber", "state", "country", "city", "ezproxyId", "proxyDate", "fileName", "url", "refUrl"]
     Date dateCreated
     Date proxyDate
@@ -102,8 +103,14 @@ abstract class EzproxyBase<T extends EzproxyBase> {
                                              String item) {
         assert item != null && item.trim() != APACHE_NULL : "the index item must not be null"
         if (notInCache(cache, ezproxyId, item)) {
-            def storedItem = this.getClass()."findByEzproxyIdAnd${itemName.capitalize()}"(ezproxyId, item)
-            return storedItem != null
+            def query = "findByEzproxyIdAnd${itemName.capitalize()}"
+            try {
+                def storedItem = this.getClass()."${query}"(ezproxyId, item)
+                return storedItem != null
+            } catch (Exception e) {
+                log.warn("Could not run query ${query} due to an unexpected exception")
+                throw e
+            }
         }
 
         return true

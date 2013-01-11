@@ -19,12 +19,6 @@ class EzproxyService {
     def quartzScheduler
     def _applicationContext
 
-    static final PARSER_PROPERTY = "metridoc.ezproxy.parser"
-    static final RAW_DATA_PROPERTY = "metridoc.ezproxy.rawData"
-    static final EZPROXY_DIRECTORY_PROPERTY = "metridoc.ezproxy.directory"
-    static final DEFAULT_EZPROXY_DIRECTORY = "${USER_HOME}${FILE_SEPARATOR}.metridoc${FILE_SEPARATOR}files${FILE_SEPARATOR}ezproxy"
-    static final DEFAULT_FILE_FILTER = /ezproxy\.log\.\d{8}\.gz/
-    static final FILE_FILTER_PROPERTY = "metridoc.ezproxy.fileFilter"
     static final JOB_ACTIVE_PROPERTY_NAME = "metridoc.ezproxy.job.enabled"
 
     def getApplicationContext() {
@@ -40,64 +34,31 @@ class EzproxyService {
     }
 
     def getRawSampleData() {
-        def propertyDomain = EzProperties.find {
-            propertyName == RAW_DATA_PROPERTY
-        }
-
-        if (propertyDomain) {
-            return propertyDomain.propertyValue
-        }
-
-        return grailsApplication.mergedConfig.metridoc.ezproxy.sampleLog
+        return EzParserProperties.instance().sampleLog
     }
 
     def getRawParser() {
-        def propertyDomain = EzProperties.find {
-            propertyName == PARSER_PROPERTY
-        }
-
-        if (propertyDomain) {
-            return propertyDomain.propertyValue
-        }
-
-        return grailsApplication.mergedConfig.metridoc.ezproxy.sampleParser
+        return EzParserProperties.instance().sampleParser
     }
 
     def updateParser(parserText) {
-        def propertyDomain = EzProperties.find {
-            propertyName == PARSER_PROPERTY
-        }
-
-        if (propertyDomain) {
-            propertyDomain.propertyValue = parserText
-        } else {
-            new EzProperties(propertyName: PARSER_PROPERTY, propertyValue: parserText).save()
-        }
+        def instance = EzParserProperties.instance()
+        instance.sampleParser = parserText
+        instance.save()
     }
 
-    //TODO: use dry to clean this up
     def updateSampleData(rawData) {
-        def propertyDomain = EzProperties.find {
-            propertyName == RAW_DATA_PROPERTY
-        }
-
-        if (propertyDomain) {
-            propertyDomain.propertyValue = rawData
-        } else {
-            new EzProperties(propertyName: RAW_DATA_PROPERTY, propertyValue: rawData).save()
-        }
+        def instance = EzParserProperties.instance()
+        instance.sampleLog = rawData
+        instance.save()
     }
 
     def hasParser() {
-        EzProperties.find {
-            propertyName == PARSER_PROPERTY
-        } ? true : false
+        EzParserProperties.instance().sampleParser ? true : false
     }
 
     def hasData() {
-        EzProperties.find {
-            propertyName == RAW_DATA_PROPERTY
-        } ? true : false
+        EzParserProperties.instance().sampleLog ? true : false
     }
 
     def getParsedData() {
@@ -120,9 +81,7 @@ class EzproxyService {
 
     def getParserObject() {
         parserException = null
-        def storedText = EzProperties.find {
-            propertyName == PARSER_PROPERTY
-        }?.propertyValue
+        def storedText = EzParserProperties.instance().sampleParser
 
         if (storedText) {
             if (shouldRebuildParser(storedText)) {
@@ -140,7 +99,7 @@ class EzproxyService {
     }
 
     def rebuildParser(String parserText) {
-        def parserTemplate = grailsApplication.mergedConfig.metridoc.ezproxy.ezproxyParserTemplate
+        def parserTemplate = EzproxyUtils.DEFAULT_PARSER_TEMPLATE
         parserObject = buildParser(parserText, parserTemplate)
     }
 
@@ -186,52 +145,31 @@ class EzproxyService {
             }
         }
 
-
         return result
     }
 
     def getEzproxyFileFilter() {
-        getEzproxyProperty(FILE_FILTER_PROPERTY, DEFAULT_FILE_FILTER)
+        EzParserProperties.instance().fileFilter
     }
 
     def getEzproxyDirectory() {
-        getEzproxyProperty(EZPROXY_DIRECTORY_PROPERTY, DEFAULT_EZPROXY_DIRECTORY)
-    }
-
-    def getEzproxyProperty(String propertyName, String defaultValue) {
-        return getEzproxyPropertyObject(propertyName, defaultValue).propertyValue
-    }
-
-    def getEzproxyPropertyObject(String propertyName, String defaultValue) {
-        def property = EzProperties.findByPropertyName(propertyName)
-        if (property) {
-            return property
-        } else {
-            property = new EzProperties(propertyName: propertyName, propertyValue: defaultValue)
-            property.save(flush: true)
-        }
-
-        return property
+        EzParserProperties.instance().directory
     }
 
     def updateFileFilter(String newFileFilter) {
-        log.info "updating file filter to $newFileFilter"
-        getEzproxyPropertyObject(FILE_FILTER_PROPERTY, DEFAULT_FILE_FILTER).propertyValue = newFileFilter
+        def instance = EzParserProperties.instance()
+        instance.fileFilter = newFileFilter
+        instance.save()
     }
 
     def updateDirectory(String newEzproxyDirectory) {
-        log.info "updating ezproxy directory to $newEzproxyDirectory"
-        getEzproxyPropertyObject(EZPROXY_DIRECTORY_PROPERTY, DEFAULT_EZPROXY_DIRECTORY).propertyValue = newEzproxyDirectory
+        def instance = EzParserProperties.instance()
+        instance.directory = newEzproxyDirectory
+        instance.save()
     }
 
     def isJobActive() {
-
-        if (!activeJobProperty) {
-            def property = new EzProperties(propertyName: JOB_ACTIVE_PROPERTY_NAME, propertyValue: false)
-            property.save(flush: true)
-        }
-        def result = Boolean.valueOf(activeJobProperty.propertyValue)
-        return result
+        EzParserProperties.instance().jobActivated
     }
 
     def activateEzproxyJob() {
@@ -254,14 +192,10 @@ class EzproxyService {
         new JobKey(EzproxyJob.class.name)
     }
 
-    def getActiveJobProperty() {
-        EzProperties.findByPropertyName(JOB_ACTIVE_PROPERTY_NAME)
-    }
-
     private setActiveJobProperty(Boolean value) {
-        def property = activeJobProperty
-        property.propertyValue = value.toString()
-        property.save(failOnError: true)
+        def instance = EzParserProperties.instance()
+        instance.jobActivated = value
+        instance.save()
     }
 
     void deleteDataForFileIfHashNotCorrect(File file) {
@@ -277,14 +211,6 @@ class EzproxyService {
             }
         }
 
-    }
-
-    void deleteDataForFileIfThereIsAnError(File file) {
-        def fileName = file.name
-        def error = EzproxyHosts.findByFileNameAndError(fileName, true)
-        if (error) {
-            deleteDataForFile(fileName)
-        }
     }
 
     void deleteDataForFile(String nameOfFileToDelete) {
