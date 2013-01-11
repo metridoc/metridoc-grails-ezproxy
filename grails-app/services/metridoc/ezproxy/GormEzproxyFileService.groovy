@@ -57,45 +57,38 @@ class GormEzproxyFileService implements EzproxyFileService {
 
     void processFile(File file, parser) {
 
-        try {
-            def streamToDigest = file.newInputStream()
-            def hex = DigestUtils.sha256Hex(streamToDigest)
-            IOUtils.closeQuietly(streamToDigest)
+        def streamToDigest = file.newInputStream()
+        def hex = DigestUtils.sha256Hex(streamToDigest)
+        IOUtils.closeQuietly(streamToDigest)
 
-            def fileName = file.name
-            EzproxyHosts.withNewTransaction {
-                new EzFileMetaData(fileName: fileName, sha256: hex).save(failOnError: true)
-                log.info "stored metaData of file $file"
-                def stream = new FileInputStream(file)
-                if (file.name.endsWith(".gz")) {
-                    stream = new GZIPInputStream(stream)
-                }
+        def fileName = file.name
+        EzproxyHosts.withNewTransaction {
+            new EzFileMetaData(fileName: fileName, sha256: hex).save(failOnError: true)
+            log.info "stored metaData of file $file"
+            def stream = new FileInputStream(file)
+            if (file.name.endsWith(".gz")) {
+                stream = new GZIPInputStream(stream)
+            }
 
-                stream.eachLine(getEncoding()) { String line, int lineNumber ->
-                    try {
-                        def record = parser.parse(line, lineNumber, file.name)
-                        process(record)
-                    } catch (Throwable throwable) {
-                        log.error "error occurred for file $file at line $lineNumber with line $line", throwable
-                        handleFatalError(file, lineNumber, throwable)
-                    }
+            stream.eachLine(getEncoding()) { String line, int lineNumber ->
+                try {
+                    def record = parser.parse(line, lineNumber, file.name)
+                    process(record)
+                } catch (Throwable throwable) {
+                    log.error "error occurred for file $file at line $lineNumber with line $line", throwable
+                    handleFatalError(file, lineNumber, throwable)
                 }
             }
-            //TODO: use event based programming here instead?
-            grailsApplication.domainClasses.each {
-                def instance = it.newInstance()
-                if (instance instanceof EzproxyBase) {
-                    instance.finishedFile(fileName)
-                }
-            }
-            log.info "finished processing file $file"
-        } catch (Throwable e) {
-            def data = EzFileMetaData.findByFileName(file.name)
-            if (data) {
-                EzFileMetaData.get(data.id).delete()
-            }
-            throw e
         }
+        //TODO: use event based programming here instead?
+        grailsApplication.domainClasses.each {
+            def instance = it.newInstance()
+            if (instance instanceof EzproxyBase) {
+                instance.finishedFile(fileName)
+            }
+        }
+        log.info "finished processing file $file"
+
     }
 
     protected void process(Map<String, Object> record) {
@@ -121,13 +114,12 @@ class GormEzproxyFileService implements EzproxyFileService {
 
                 def lineNumber = record.lineNumber
                 def fileName = record.fileName
-                if (lineNumber % 10000 == 0  && !linesLogged.contains(lineNumber)) {
+                if (lineNumber % 10000 == 0 && !linesLogged.contains(lineNumber)) {
                     log.info "$lineNumber lines have been processed for file $fileName"
                     linesLogged << lineNumber
                 }
             }
         }
-
 
 
     }
