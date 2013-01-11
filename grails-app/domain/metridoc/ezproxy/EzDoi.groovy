@@ -1,7 +1,5 @@
 package metridoc.ezproxy
 
-import org.apache.commons.lang.math.RandomUtils
-
 import java.util.regex.Pattern
 
 class EzDoi extends EzproxyBase<EzDoi> {
@@ -9,7 +7,7 @@ class EzDoi extends EzproxyBase<EzDoi> {
     static Map<String, Set<String>> doiByEzproxyId = Collections.synchronizedMap([:])
     static transients = ["refUrl", "ipAddress", "patronId", "state", "country", "city", "refUrlHost", "dept", "organization", "rank", "url"]
     String doi
-    public static final List EZ_DOI_ONE_TO_ONE
+    public static final EZ_DOI_ONE_TO_ONE
     Boolean resolvableDoi = false
     Boolean processedDoi = false
     public static final DOI_PREFIX_PATTERN = "10."
@@ -47,7 +45,12 @@ class EzDoi extends EzproxyBase<EzDoi> {
         boolean notProcessed = false
         boolean hasDoi = hasDoi(record)
         if (hasEzproxyIdAndUrl && hasDoi) {
-            record.doi = extractDoi(record.url as String)
+            try {
+                record.doi = extractDoi(record.url as String)
+            } catch (Exception e) {
+                log.warn "There was an unexpected exception trying to extract the doi from ${record.url}", e
+                return false
+            }
             notProcessed = !alreadyProcessed(doiByEzproxyId, record.ezproxyId, "doi", record.doi)
         }
         def result = hasEzproxyIdAndUrl && hasDoi && notProcessed
