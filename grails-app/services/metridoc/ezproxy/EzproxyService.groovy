@@ -145,7 +145,7 @@ class EzproxyService {
     }
 
     def buildParser(String parserText, Closure parserTemplate) {
-        def code = parserTemplate.call(parserText)
+        String code = parserTemplate.call(parserText)
         def classLoader = Thread.currentThread().contextClassLoader
         def parser = new GroovyClassLoader(classLoader).parseClass(code).newInstance()
         parser.applicationContext = applicationContext
@@ -160,7 +160,7 @@ class EzproxyService {
     def getEzproxyFiles() {
         def result = []
 
-        new File(getEzproxyDirectory()).listFiles().each {
+        new File(getEzproxyDirectory()).listFiles().sort { it.name }.each {
             if (it.isFile()) {
                 def filter = getEzproxyFileFilter()
                 if (it.name ==~ filter) {
