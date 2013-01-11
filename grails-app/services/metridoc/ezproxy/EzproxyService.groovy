@@ -159,29 +159,33 @@ class EzproxyService {
 
     def getEzproxyFiles() {
         def result = []
+        def ezproxyDirectory = new File(getEzproxyDirectory())
+        def ezproxyFiles = ezproxyDirectory.listFiles()
+        if (ezproxyFiles) {
+            ezproxyFiles.sort { it.name }.each {
+                if (it.isFile()) {
+                    def filter = getEzproxyFileFilter()
+                    if (it.name ==~ filter) {
+                        def fileData = EzFileMetaData.findByFileName(it.name)
 
-        new File(getEzproxyDirectory()).listFiles().sort { it.name }.each {
-            if (it.isFile()) {
-                def filter = getEzproxyFileFilter()
-                if (it.name ==~ filter) {
-                    def fileData = EzFileMetaData.findByFileName(it.name)
+                        def itemToAdd = [file: it]
+                        if (fileData) {
+                            itemToAdd.done = true
+                        } else {
+                            itemToAdd.done = false
+                        }
 
-                    def itemToAdd = [file: it]
-                    if (fileData) {
-                        itemToAdd.done = true
-                    } else {
-                        itemToAdd.done = false
+                        def errors = EzproxyHosts.findAllByFileNameAndError(it.name, true, [max: 1])
+                        if (errors) {
+                            itemToAdd.error = true
+                        }
+
+                        result << itemToAdd
                     }
-
-                    def errors = EzproxyHosts.findAllByFileNameAndError(it.name, true, [max: 1])
-                    if (errors) {
-                        itemToAdd.error = true
-                    }
-
-                    result << itemToAdd
                 }
             }
         }
+
 
         return result
     }
