@@ -22,10 +22,18 @@
         <div>
             <label for="ezproxyFileRegex">Ezproxy File Regex:</label>
             <input id="ezproxyFileRegex" type="text" name="ezproxyFileRegex" value="${ezproxyFileFilter}"/>
-            <br/>
-            <br/>
-            <g:render template="fileOutput" plugin="metridoc-ezproxy"/>
+
         </div>
+
+        <div>
+            <label for="storePatronId">Store Patron Id?</label>
+            <g:checkBox name="storePatronId" value="${storePatronId}" id="storePatronId"/>
+        </div>
+
+        <br/>
+        <br/>
+        <g:render template="fileOutput" plugin="metridoc-ezproxy"/>
+
 
         <br/>
         <br/>

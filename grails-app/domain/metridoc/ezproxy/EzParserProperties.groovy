@@ -7,8 +7,7 @@ class EzParserProperties {
     String crossRefEncryptionKey = RandomStringUtils.randomAlphanumeric(100)
     String crossRefUserName = "user"
     String crossRefPassword = "password"
-    Boolean encryptPatronInfo = false
-    Boolean anonymizePatronInfo = false
+    Boolean storePatronId = false
     String fileFilter = ".*"
     String directory = EzproxyUtils.DEFAULT_FILE_LOCATION
     Boolean jobActivated = false

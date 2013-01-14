@@ -156,6 +156,10 @@ class EzproxyService {
         EzParserProperties.instance().directory
     }
 
+    def getStorePatronId() {
+        EzParserProperties.instance().storePatronId
+    }
+
     def updateFileFilter(String newFileFilter) {
         def instance = EzParserProperties.instance()
         instance.fileFilter = newFileFilter
@@ -231,6 +235,12 @@ class EzproxyService {
                 }
             }
         }
+    }
+
+    void updateStorePatronId(Boolean storePatronId) {
+        def instance = EzParserProperties.instance()
+        instance.storePatronId = storePatronId
+        instance.save()
     }
 }
 

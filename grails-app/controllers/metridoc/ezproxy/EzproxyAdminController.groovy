@@ -23,7 +23,8 @@ class EzproxyAdminController {
                 ezproxyFiles: ezproxyService.ezproxyFiles,
                 ezproxyDirectory: ezproxyService.ezproxyDirectory,
                 ezproxyFileFilter: ezproxyService.ezproxyFileFilter,
-                ezproxyJobIsActive: ezproxyService.isJobActive()
+                ezproxyJobIsActive: ezproxyService.isJobActive(),
+                storePatronId: ezproxyService.storePatronId
         ]
 
         if (ezproxyService.parserException) {
@@ -59,6 +60,13 @@ class EzproxyAdminController {
     }
 
     def updateEzproxyParser() {
+        //TODO: remove once done
+        log.info params
+        if ("on" == params.storePatronId) {
+            ezproxyService.updateStorePatronId(true)
+        } else {
+            ezproxyService.updateStorePatronId(false)
+        }
         if (params.ezproxyParserScript) {
             ezproxyService.updateParser(params.ezproxyParserScript)
         } else {
