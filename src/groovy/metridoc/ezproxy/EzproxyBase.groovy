@@ -46,7 +46,7 @@ abstract class EzproxyBase<T extends EzproxyBase> {
                 valid: false,
                 lineNumber: lineNumber ?: -1,
                 fileName: fileName ?: "ERROR",
-                ezproxyId: "ERROR",
+                ezproxyId: (ezproxyId != null && ezproxyId.length() < 50) ? ezproxyId : "ERROR",
                 proxyDate: new Date()
         )
     }
@@ -100,8 +100,8 @@ abstract class EzproxyBase<T extends EzproxyBase> {
     }
 
     protected boolean alreadyProcessed(Map<String, Set<String>> cache, String ezproxyId, String itemName,
-                                             String item) {
-        assert item != null && item.trim() != APACHE_NULL : "the index item must not be null"
+                                       String item) {
+        assert item != null && item.trim() != APACHE_NULL: "the index item must not be null"
         if (notInCache(cache, ezproxyId, item)) {
             def query = "findByEzproxyIdAnd${itemName.capitalize()}"
             try {
@@ -117,7 +117,7 @@ abstract class EzproxyBase<T extends EzproxyBase> {
     }
 
     protected static boolean notInCache(Map<String, Set<String>> cache, String ezproxyId,
-           String item) {
+                                        String item) {
 
         boolean result
         def processedItems = cache[ezproxyId]

@@ -21,7 +21,7 @@ class EzproxyHosts extends EzproxyBase<EzproxyHosts> {
         country(maxSize: 50, nullable: true)
         state(maxSize: 50, nullable: true)
         city(maxSize: 50, nullable: true)
-        ezproxyId(unique:'urlHost', maxSize: 50)
+        ezproxyId(unique: 'urlHost', maxSize: 50)
         validationError(maxSize: Integer.MAX_VALUE, nullable: true)
         dept(nullable: true)
         rank(nullable: true)
@@ -41,7 +41,7 @@ class EzproxyHosts extends EzproxyBase<EzproxyHosts> {
         def processed = false
         if (hasEzproxyIdAndUrl) {
             String host = new URL(record.url as String).host
-            processed = alreadyProcessed(hostsByEzproxyId, ezproxyId, "urlHost", host)
+            processed = alreadyProcessed(hostsByEzproxyId, record.ezproxyId as String, "urlHost", host)
         }
         def result = hasEzproxyIdAndUrl && !processed
 
