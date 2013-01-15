@@ -60,13 +60,6 @@ class EzproxyAdminController {
     }
 
     def updateEzproxyParser() {
-        //TODO: remove once done
-        log.info params
-        if ("on" == params.storePatronId) {
-            ezproxyService.updateStorePatronId(true)
-        } else {
-            ezproxyService.updateStorePatronId(false)
-        }
         if (params.ezproxyParserScript) {
             ezproxyService.updateParser(params.ezproxyParserScript)
         } else {

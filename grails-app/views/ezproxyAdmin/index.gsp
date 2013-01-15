@@ -22,7 +22,6 @@
         <div>
             <label for="ezproxyFileRegex">Ezproxy File Regex:</label>
             <input id="ezproxyFileRegex" type="text" name="ezproxyFileRegex" value="${ezproxyFileFilter}"/>
-
         </div>
 
         <br/>
