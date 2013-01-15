@@ -172,7 +172,8 @@ log4j = {
             'org.quartz',
             'grails.plugin.quartz2',
             'metridoc.core.DevelopmentWorkflowRunnerService',
-            'org.codehaus.groovy.grails.web.context'
+            'org.codehaus.groovy.grails.web.context',
+            'net.sf.ehcache.config'
 
     warn 'metridoc.camel',
             'ShiroGrailsPlugin',
