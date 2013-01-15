@@ -86,4 +86,17 @@ class EzproxyHostsTests {
         assert new EzproxyHosts().alreadyProcessed(cache, "foo", "urlHost", "http://foo.com")
         assert 1 == cache.size()
     }
+
+    @Test
+    void "test toString"() {
+        def record = new EzproxyHosts().createDefaultInvalidRecord().toString()
+        assert record.contains("ezproxyId")
+        assert record.contains("urlHost")
+    }
+
+    @Test
+    void "test that the default error record retains the ezproxy id"() {
+        def record = new EzproxyHosts(ezproxyId: "foo").createDefaultInvalidRecord()
+        assert "foo" == record.ezproxyId
+    }
 }

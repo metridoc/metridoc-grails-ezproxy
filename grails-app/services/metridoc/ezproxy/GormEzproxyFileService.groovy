@@ -71,11 +71,16 @@ class GormEzproxyFileService implements EzproxyFileService {
             }
 
             stream.eachLine(getEncoding()) { String line, int lineNumber ->
+                def record = null
                 try {
-                    def record = parser.parse(line, lineNumber, file.name)
+                    record = parser.parse(line, lineNumber, file.name)
                     process(record)
                 } catch (Throwable throwable) {
-                    log.error "error occurred for file $file at line $lineNumber with line $line", throwable
+                    if (record) {
+                        log.error "fatal error occurred for file $file at line $lineNumber with record $record", throwable
+                    } else {
+                        log.error "fatal error occurred for file $file at line $lineNumber with line $line", throwable
+                    }
                     handleFatalError(file, lineNumber, throwable)
                 }
             }
@@ -120,9 +125,5 @@ class GormEzproxyFileService implements EzproxyFileService {
                 }
             }
         }
-
-
     }
-
-
 }

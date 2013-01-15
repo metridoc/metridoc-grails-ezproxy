@@ -56,4 +56,12 @@ class EzproxyHosts extends EzproxyBase<EzproxyHosts> {
         }
         return result
     }
+
+    @Override
+    public String toString() {
+        return "EzproxyHosts{" +
+                "urlHost=" + urlHost +
+                ", ezproxyId=" + ezproxyId +
+                '}';
+    }
 }
