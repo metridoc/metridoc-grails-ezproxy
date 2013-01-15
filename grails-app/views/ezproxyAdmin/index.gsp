@@ -15,13 +15,13 @@
 
         <div/>
         <label for="ezproxyDirectory">Ezproxy Directory:</label>
-        <input id="ezproxyDirectory" type="text" name="ezproxyDirectory"
+        <input id="ezproxyDirectory" type="text" name="directory"
                value="${ezproxyDirectory}">
         </input>
         </div>
         <div>
-            <label for="ezproxyFileRegex">Ezproxy File Regex:</label>
-            <input id="ezproxyFileRegex" type="text" name="ezproxyFileRegex" value="${ezproxyFileFilter}"/>
+            <label for="ezproxyFileRegex ">Ezproxy File Regex:</label>
+            <input id="ezproxyFileRegex " type="text" name="fileFilter" value="${ezproxyFileFilter}"/>
         </div>
 
         <br/>
@@ -32,13 +32,13 @@
         <br/>
         <br/>
         <md:header>Paste Sample Ezproxy Data</md:header>
-        <textarea id="rawEzproxyData" class="ui-widget-content code-box"
-                  name="rawEzproxyData">${rawSampleData}</textarea>
+        <textarea id="sampleLog" class="ui-widget-content code-box"
+                  name="sampleLog">${rawSampleData}</textarea>
 
 
         <md:header>Ezproxy Parser</md:header>
-        <textarea id="ezproxyParserCode" class="ui-widget-content code-box"
-                  name="ezproxyParserScript">${ezproxyParser}</textarea>
+        <textarea id="sampleParser" class="ui-widget-content code-box"
+                  name="sampleParser">${ezproxyParser}</textarea>
 
         <g:if test="${parseException}">
             <div class="ui-widget">

@@ -60,29 +60,15 @@ class EzproxyAdminController {
     }
 
     def updateEzproxyParser() {
-        if (params.ezproxyParserScript) {
-            ezproxyService.updateParser(params.ezproxyParserScript)
-        } else {
-            log.warn "there was no ezproxy script to save"
-        }
 
-        if (params.ezproxyFileRegex) {
-            ezproxyService.updateFileFilter(params.ezproxyFileRegex)
-        } else {
-            log.warn "there was no file filter to store, parameters are ${params}"
+        def instance = EzParserProperties.instance()
+        params.remove("_action_updateEzproxyParser")
+        params.remove("action")
+        params.remove("controller")
+        params.each {
+            instance."$it.key" = it.value
         }
-
-        if (params.ezproxyDirectory) {
-            ezproxyService.updateDirectory(params.ezproxyDirectory)
-        } else {
-            log.warn "there was no directory specified"
-        }
-
-        if (params.rawEzproxyData) {
-            ezproxyService.updateSampleData(params.rawEzproxyData)
-        } else {
-            log.warn "there was no ezproxy data to save"
-        }
+        instance.save()
 
         render(view: "index", model: getBasicModel())
     }
