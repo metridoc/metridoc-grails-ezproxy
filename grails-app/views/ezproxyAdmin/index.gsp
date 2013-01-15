@@ -25,11 +25,6 @@
 
         </div>
 
-        <div>
-            <label for="storePatronId">Store Patron Id?</label>
-            <g:checkBox name="storePatronId" value="${storePatronId}" id="storePatronId"/>
-        </div>
-
         <br/>
         <br/>
         <g:render template="fileOutput" plugin="metridoc-ezproxy"/>
