@@ -9,8 +9,14 @@
     bottom: 17px;
 }
 
-#ezproxyDirectory, #ezproxyFileRegex {
-    width: 500px;
+#ezproxyParserContainer label {
+    width: 175px;
+    text-align: right;
+}
+
+#ezproxyParserContainer input.userInput {
+    font-size: 12px;
+    width: 250px;
 }
 
 #ezproxyTestData {
@@ -66,6 +72,10 @@ button, #ezproxyActions {
     font-size: 15px;
 }
 
+.buttons {
+    padding-top: 10px;
+}
+
 
 
 button:hover, #ezproxyActions:hover {
@@ -101,3 +111,4 @@ button:hover, #ezproxyActions:hover {
 .errorFile {
     color: red;
 }
+

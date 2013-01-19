@@ -1,12 +1,13 @@
 package metridoc.ezproxy
 
 import org.apache.commons.lang.RandomStringUtils
+import org.jasypt.util.text.BasicTextEncryptor
 
 class EzParserProperties {
 
     String crossRefEncryptionKey = RandomStringUtils.randomAlphanumeric(100)
-    String crossRefUserName = "user"
-    String crossRefPassword = "password"
+    String crossRefUserName
+    String crossRefPassword
     Boolean storePatronId = false
     String fileFilter = ".*"
     String directory = EzproxyUtils.DEFAULT_FILE_LOCATION
@@ -25,6 +26,8 @@ class EzParserProperties {
         sampleLog(maxSize: Integer.MAX_VALUE, nullable: true)
         directory(nullable: true)
         fileFilter(nullable: true)
+        crossRefPassword(nullable: true)
+        crossRefUserName(nullable: true)
     }
 
     synchronized static EzParserProperties instance() {
@@ -40,5 +43,11 @@ class EzParserProperties {
         new EzParserProperties().save(flush: true, failOnError: true)
     }
 
-
+    static void updatePassword(String password) {
+        BasicTextEncryptor encryptor = new BasicTextEncryptor()
+        def instance = instance()
+        encryptor.password = instance.crossRefEncryptionKey
+        instance.crossRefPassword = encryptor.encrypt(password)
+        instance.save(flush: true)
+    }
 }

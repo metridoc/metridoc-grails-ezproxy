@@ -27,6 +27,7 @@ grails.project.dependency.resolution = {
         build("org.tmatesoft.svnkit:svnkit:1.3.5") {
             excludes "jna", "trilead-ssh2", "sqljet"
         }
+        compile("org.jasypt:jasypt:1.9.0")
     }
 
     plugins {

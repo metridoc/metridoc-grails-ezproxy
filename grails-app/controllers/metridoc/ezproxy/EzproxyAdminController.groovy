@@ -17,14 +17,16 @@ class EzproxyAdminController {
     }
 
     private getBasicModel() {
+        def instance = EzParserProperties.instance()
         def model = [
-                rawSampleData: ezproxyService.rawSampleData,
-                ezproxyParser: ezproxyService.rawParser,
+                rawSampleData: instance.sampleLog,
+                ezproxyParser: instance.sampleParser,
                 ezproxyFiles: ezproxyService.ezproxyFiles,
-                ezproxyDirectory: ezproxyService.ezproxyDirectory,
-                ezproxyFileFilter: ezproxyService.ezproxyFileFilter,
-                ezproxyJobIsActive: ezproxyService.isJobActive(),
-                storePatronId: ezproxyService.storePatronId
+                ezproxyDirectory: instance.directory,
+                ezproxyFileFilter: instance.fileFilter,
+                ezproxyJobIsActive: instance.jobActivated,
+                crossRefUserName: instance.crossRefUserName,
+                crossRefPassword: instance.crossRefPassword
         ]
 
         if (ezproxyService.parserException) {
@@ -61,19 +63,25 @@ class EzproxyAdminController {
 
     def updateEzproxyParser() {
 
+        if(log.debugEnabled) {
+            log.debug "parameters for the ezproxy update are $params"
+        }
         def instance = EzParserProperties.instance()
         params.remove("_action_updateEzproxyParser")
         params.remove("action")
         params.remove("controller")
+        params.remove("crossRefEncryptionKey")
+        def password = params.remove("crossRefPassword")
+
         params.each {
             instance."$it.key" = it.value
         }
         instance.save()
-
+        if (password) {
+            EzParserProperties.updatePassword(password)
+        }
         render(view: "index", model: getBasicModel())
     }
-
-
 
     def testData() {
         [

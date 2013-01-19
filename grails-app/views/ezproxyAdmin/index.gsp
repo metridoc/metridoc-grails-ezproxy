@@ -15,15 +15,31 @@
 
         <div/>
         <label for="ezproxyDirectory">Ezproxy Directory:</label>
-        <input id="ezproxyDirectory" type="text" name="directory"
+        <input class="userInput" id="ezproxyDirectory" type="text" name="directory"
                value="${ezproxyDirectory}">
         </input>
         </div>
         <div>
-            <label for="ezproxyFileRegex ">Ezproxy File Regex:</label>
-            <input id="ezproxyFileRegex " type="text" name="fileFilter" value="${ezproxyFileFilter}"/>
+            <label for="ezproxyFileRegex">Ezproxy File Regex:</label>
+            <input class="userInput" id="ezproxyFileRegex" type="text" name="fileFilter" value="${ezproxyFileFilter}"/>
         </div>
-
+        <div>
+            <label for="crossRefUserName">CrossRef User Name:</label>
+            <input class="userInput" id="crossRefUserName" type="text" name="crossRefUserName" value="${crossRefUserName}"/>
+        </div>
+        <div>
+            <label for="crossRefPassword">CrossRef Password:</label>
+            <input class="userInput" id="crossRefPassword" type="password" name="crossRefPassword" value="${crossRefPassword}"/>
+        </div>
+        <div class="buttons">
+            <g:actionSubmit value="Update" action="updateEzproxyParser"/>
+            <g:if test="${ezproxyJobIsActive}">
+                <g:actionSubmit value="Deactivate Job" action="deactivateJob"/>
+            </g:if>
+            <g:else>
+                <g:actionSubmit value="Activate Job" action="activateJob"/>
+            </g:else>
+        </div>
         <br/>
         <br/>
         <g:render template="fileOutput" plugin="metridoc-ezproxy"/>
