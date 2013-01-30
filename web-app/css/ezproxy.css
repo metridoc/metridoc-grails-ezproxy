@@ -45,28 +45,6 @@
 
 }
 
-/* TODO: move this to metridoc-core?  At least the button concept, lot easier to just say "button" */
-button, #ezproxyActions {
-    background-color: #efefef;
-    border: 0;
-    -moz-box-shadow: 0 0 3px 1px #aaaaaa;
-    -webkit-box-shadow: 0 0 3px 1px #aaaaaa;
-    box-shadow: 0 0 3px 1px #aaaaaa;
-    color: #333;
-    cursor: pointer;
-    display: inline-block;
-    margin: 0 0.25em 0;
-    overflow: visible;
-    padding: 0.25em 0.7em;
-    text-decoration: none;
-
-    -moz-border-radius: 0.3em;
-    -webkit-border-radius: 0.3em;
-    border-radius: 0.3em;
-    font-size: 10px;
-    vertical-align: middle;
-}
-
 .ui-button-text-only .ui-button-text {
     padding: .2em 1em;
     line-height: 1;
@@ -78,16 +56,6 @@ button, #ezproxyActions {
 }
 
 
-
-button:hover, #ezproxyActions:hover {
-    background-color: #999999;
-    color: #ffffff;
-    outline: none;
-    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.8);
-    -moz-box-shadow: none;
-    -webkit-box-shadow: none;
-    box-shadow: none;
-}
 
 .ui-menu {
     position: absolute; width: 100px;
@@ -113,3 +81,8 @@ button:hover, #ezproxyActions:hover {
     color: red;
 }
 
+pre {
+    border: none;
+    background-color: transparent;
+    color: #b94a48;
+}
