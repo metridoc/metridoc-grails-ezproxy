@@ -2,9 +2,10 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 //location of the release repository
-grails.project.repos.metridocRepo.url = new File("../maven/repository").toURI().toURL().toString()
+grails.project.repos.metridocRepo.url = "svn:https://metridoc.googlecode.com/svn/trunk/maven/repository"
 //name of the repository
 grails.project.repos.default = "metridocRepo"
+
 
 grails.project.dependency.resolution = {
     // inherit Grails' default dependencies
@@ -15,6 +16,7 @@ grails.project.dependency.resolution = {
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     repositories {
         inherits true // Whether to inherit repository definitions from plugins
+        mavenLocal()
         grailsPlugins()
         grailsHome()
         grailsCentral()
@@ -28,6 +30,8 @@ grails.project.dependency.resolution = {
             excludes "jna", "trilead-ssh2", "sqljet"
         }
         compile("org.jasypt:jasypt:1.9.0")
+        build("com.google.code.maven-svn-wagon:maven-svn-wagon:1.4")
+        build('org.apache.maven:maven-ant-tasks:2.1.3')
     }
 
     plugins {
@@ -38,5 +42,6 @@ grails.project.dependency.resolution = {
                 ":rest-client-builder:1.0.2") {
             export = false
         }
+        build ":release:$grailsVersion"
     }
 }

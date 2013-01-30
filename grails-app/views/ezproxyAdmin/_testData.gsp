@@ -7,7 +7,7 @@
 --%>
 
 <div class="ezproxyData">
-    <table id="ezproxyTestData">
+    <table id="ezproxyTestData" class="table table-striped table-hover">
     <thead>
     <g:each in="${headers}" var="header">
         <th>${header}</th>
