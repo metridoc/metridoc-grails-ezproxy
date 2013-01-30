@@ -86,3 +86,8 @@ pre {
     background-color: transparent;
     color: #b94a48;
 }
+
+#sampleLog, #sampleParser {
+    width: 850px;
+    height: 150px;
+}

@@ -61,12 +61,12 @@
                 <br/>
                 <br/>
                 <md:header>Paste Sample Ezproxy Data</md:header>
-                <textarea id="sampleLog" class="ui-widget-content code-box"
-                          name="sampleLog">${rawSampleData}</textarea>
+                <textarea id="sampleLog" name="sampleLog" class="code-box">${rawSampleData}</textarea>
 
-
+                <br/>
+                <br/>
                 <md:header>Ezproxy Parser</md:header>
-                <textarea id="sampleParser" class="ui-widget-content code-box"
+                <textarea id="sampleParser" class="code-box"
                           name="sampleParser">${ezproxyParser}</textarea>
 
                 <g:if test="${parseException}">
