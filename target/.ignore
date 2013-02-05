@@ -5,3 +5,4 @@ classes
 test-reports
 test-classes
 *.sha1
+grails-plugin-metridoc-ezproxy*.jar
