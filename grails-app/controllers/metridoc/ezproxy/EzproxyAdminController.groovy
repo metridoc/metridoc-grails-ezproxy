@@ -4,6 +4,10 @@ class EzproxyAdminController {
 
     def ezproxyService
 
+    static accessControl = {
+        role(name: "ROLE_ADMIN")
+    }
+
     static homePage = [
             title: "Ezproxy Admin Panel",
             adminOnly: true,
@@ -63,7 +67,7 @@ class EzproxyAdminController {
 
     def updateEzproxyParser() {
 
-        if(log.debugEnabled) {
+        if (log.debugEnabled) {
             log.debug "parameters for the ezproxy update are $params"
         }
         def instance = EzParserProperties.instance()
