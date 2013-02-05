@@ -55,7 +55,8 @@
                 <br/>
                 <br/>
 
-                <g:render template="fileOutput" plugin="metridoc-ezproxy"/>
+                <tmpl:fileOutput/>
+                %{--<g:render template="fileOutput" plugin="metridoc-ezproxy"/>--}%
 
 
                 <br/>
@@ -71,11 +72,11 @@
 
                 <g:if test="${parseException}">
                     <div class="alert alert-block alert-error">
-                            <pre>${ExceptionUtils.getFullStackTrace(parseException)}</pre>
+                        <pre>${ExceptionUtils.getFullStackTrace(parseException)}</pre>
                     </div>
                 </g:if>
                 <g:else>
-                    <g:render template="testData" plugin="metridoc-ezproxy" model="${params}"/>
+                    <g:render template="/ezproxyAdmin/testData" model="${params}"/>
                 </g:else>
                 <br/>
 
