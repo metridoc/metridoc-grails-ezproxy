@@ -41,7 +41,7 @@ class EzDoiJournal {
                     doi.resolvableDoi = true
                 } else {
 
-                    def resultStr = DOI_URL(userName, password, doiId).text
+                    def resultStr = DOI_URL.call(userName, password, doiId).text
                     Node node = new XmlParser().parseText(resultStr);
                     def bodyQuery = node.query_result.body.query
                     if (bodyQuery["@status"].text() == 'resolved') {
