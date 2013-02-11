@@ -55,8 +55,7 @@
                 <br/>
                 <br/>
 
-                <tmpl:fileOutput/>
-                %{--<g:render template="fileOutput" plugin="metridoc-ezproxy"/>--}%
+                <g:render template="/ezproxyAdmin/fileOutput" plugin="metridoc-ezproxy"/>
 
 
                 <br/>
@@ -76,7 +75,7 @@
                     </div>
                 </g:if>
                 <g:else>
-                    <g:render template="/ezproxyAdmin/testData" model="${params}"/>
+                    <g:render template="/ezproxyAdmin/testData" model="${params}" plugin="metridoc-ezproxy"/>
                 </g:else>
                 <br/>
 
