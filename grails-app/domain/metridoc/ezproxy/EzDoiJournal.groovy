@@ -1,5 +1,7 @@
 package metridoc.ezproxy
 
+import org.xml.sax.SAXParseException
+
 class EzDoiJournal {
 
     String doi
@@ -41,21 +43,28 @@ class EzDoiJournal {
                     doi.resolvableDoi = true
                 } else {
 
-                    def resultStr = DOI_URL.call(userName, password, doiId).text
-                    Node node = new XmlParser().parseText(resultStr);
-                    def bodyQuery = node.query_result.body.query
-                    if (bodyQuery["@status"].text() == 'resolved') {
-                        def ezDoiJournal = new EzDoiJournal()
-                        ezDoiJournal.journalTitle = truncateValue(bodyQuery.journal_title.text())
-                        ezDoiJournal.articleTitle = truncateValue(bodyQuery.article_title.text())
-                        ezDoiJournal.doi = doiId
-                        doi.resolvableDoi = true
-                        ezDoiJournal.save(failOnError: true)
-                    } else {
-                        doi.resolvableDoi = false
+                    def url = DOI_URL.call(userName, password, doiId).text
+                    def resultStr = url.text
+                    Node node
+                    try {
+                        node = new XmlParser().parseText(resultStr);
+                        def bodyQuery = node.query_result.body.query
+                        if (bodyQuery["@status"].text() == 'resolved') {
+                            def ezDoiJournal = new EzDoiJournal()
+                            ezDoiJournal.journalTitle = truncateValue(bodyQuery.journal_title.text())
+                            ezDoiJournal.articleTitle = truncateValue(bodyQuery.article_title.text())
+                            ezDoiJournal.doi = doiId
+                            doi.resolvableDoi = true
+                            ezDoiJournal.save(failOnError: true)
+                        } else {
+                            doi.resolvableDoi = false
+                        }
+                        doi.save(failOnError: true)
+                    } catch (SAXParseException e) {
+                        log.error("Could not parse doi ${doi.doi} with url from ${url} ${resultStr}", e)
                     }
                 }
-                doi.save(failOnError: true)
+
             }
         }
     }
