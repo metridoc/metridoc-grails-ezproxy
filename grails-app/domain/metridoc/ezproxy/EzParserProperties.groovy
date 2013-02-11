@@ -50,4 +50,11 @@ class EzParserProperties {
         instance.crossRefPassword = encryptor.encrypt(password)
         instance.save(flush: true)
     }
+
+    static String getDecryptedCrossRefPassword() {
+        BasicTextEncryptor encryptor = new BasicTextEncryptor()
+        def instance = instance()
+        encryptor.password = instance.crossRefEncryptionKey
+        return encryptor.decrypt(instance.crossRefPassword)
+    }
 }
