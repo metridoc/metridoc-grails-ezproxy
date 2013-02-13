@@ -17,7 +17,7 @@ class DoiService {
     DoiStats populateDoiInformation(int amountToResolve) {
         def ezProperties = EzParserProperties.instance()
         String userName = ezProperties.crossRefUserName
-        String password = ezProperties.crossRefPassword
+        String password = EzParserProperties.decryptedCrossRefPassword
 
         def stats = new DoiStats()
         EzDoiJournal.withNewTransaction {
