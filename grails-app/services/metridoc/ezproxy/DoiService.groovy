@@ -2,7 +2,7 @@ package metridoc.ezproxy
 
 import groovy.transform.ToString
 import groovy.xml.QName
-import org.springframework.uaa.client.util.Assert
+import org.springframework.util.Assert
 
 import static org.apache.commons.lang.StringUtils.EMPTY
 
@@ -45,6 +45,7 @@ class DoiService {
                         def status = result.status
                         if (status == 'resolved') {
                             def ezDoiJournal = new EzDoiJournal(result)
+                            ezDoiJournal.doi = doiId
                             doi.resolvableDoi = true
                             ezDoiJournal.save(failOnError: true)
                             stats.resolved ++
@@ -91,10 +92,12 @@ class DoiService {
         def contributor = bodyQuery.contributors.contributor.find {
             it["@sequence"] == "first"
         }
+        if (contributor) {
+            result.givenName = getItem(contributor.given_name)
+            result.surName = getItem(contributor.surname)
+        }
 
         result.status = bodyQuery["@status"].text()
-        result.givenName = getItem(contributor.given_name)
-        result.surName = getItem(contributor.surname)
         result.volume = getItem(bodyQuery.volume)
         result.issue = getItem(bodyQuery.issue)
         result.firstPage = getItem(bodyQuery.first_page)
