@@ -4,9 +4,6 @@ import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.IOUtils
 import org.quartz.JobKey
 
-import static org.apache.commons.lang.SystemUtils.FILE_SEPARATOR
-import static org.apache.commons.lang.SystemUtils.USER_HOME
-
 /**
  * base ezproxy service that handles maintaining / storing parsers and raw data
  */
@@ -180,7 +177,10 @@ class EzproxyService {
         if (!isJobActive()) {
             log.info "activating ezproxy job"
             setActiveJobProperty(true)
-            quartzScheduler.resumeJob(jobKey)
+            jobKeys.each {
+                quartzScheduler.resumeJob(it)
+            }
+
         }
     }
 
@@ -188,12 +188,17 @@ class EzproxyService {
         if (isJobActive()) {
             log.info "pausing ezproxy job"
             setActiveJobProperty(false)
-            quartzScheduler.pauseJob(jobKey)
+            jobKeys.each {
+                quartzScheduler.pauseJob(it)
+            }
         }
     }
 
-    def getJobKey() {
-        new JobKey(EzproxyJob.class.name)
+    def getJobKeys() {
+        [
+                new JobKey(EzproxyJob.class.name),
+                new JobKey(EzproxyDoiJob.class.name)
+        ]
     }
 
     private setActiveJobProperty(Boolean value) {
