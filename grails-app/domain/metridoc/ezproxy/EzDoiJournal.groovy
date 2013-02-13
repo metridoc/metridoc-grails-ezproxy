@@ -1,5 +1,6 @@
 package metridoc.ezproxy
 
+import groovy.transform.ToString
 import org.xml.sax.SAXParseException
 
 class EzDoiJournal {
@@ -7,72 +8,60 @@ class EzDoiJournal {
     String doi
     String articleTitle
     String journalTitle
+    String givenName
+    String surName
+    String volume
+    String issue
+    String firstPage
+    String lastPage
+    Integer printYear
+    Integer electronicYear
+    Integer onlineYear
+    String printIssn
+    String electronicIssn
+    String printIsbn
+    String electronicIsbn
+
     static final int TITLE_SIZE = 400
     static String ENCODING = "utf-8"
     static final DOI_URL = {String userName, String password, String doi ->
         def doiBase = "http://www.crossref.org/openurl/?noredirect=true&pid="
         def doiEncoded = URLEncoder.encode(doi, ENCODING)
-        return new URL("${doiBase}${userName}:${password}id=${doiEncoded}")
+        return new URL("${doiBase}${userName}:${password}&id=${doiEncoded}")
     }
-
 
     static constraints = {
         doi(unique: true)
         journalTitle(nullable: true, maxSize: TITLE_SIZE)
         articleTitle(nullable: true, maxSize: TITLE_SIZE)
+        givenName(nullable: true)
+        surName(nullable: true)
+        volume(nullable: true)
+        issue(nullable: true)
+        firstPage(nullable: true)
+        lastPage(nullable: true)
+        printYear(nullable: true)
+        electronicYear(nullable: true)
+        onlineYear(nullable: true)
+        printIssn(nullable: true)
+        electronicIssn(nullable: true)
+        printIsbn(nullable: true)
+        electronicIsbn(nullable: true)
     }
 
     static mapping = {
 
     }
 
-    static void resolveDois(int amountToResolve) {
-        EzDoiJournal.withNewTransaction {
-            def ezDois = EzDoi.findAll(max: amountToResolve) {
-                processedDoi == true
-            }
+    @ToString(includeNames = true)
+    public static class DoiStats {
+        int total = 0
+        int alreadyExsists = 0
+        int resolved = 0
+        int unresolved = 0
 
-            def userName = EzParserProperties.instance().crossRefUserName
-            def password = EzParserProperties.decryptedCrossRefPassword
-
-            ezDois.each { doi ->
-                def doiId = doi.doi
-                def journal = EzDoiJournal.findByDoi(doiId)
-                doi.processedDoi = true
-                if (journal) {
-                    doi.resolvableDoi = true
-                } else {
-
-                    def url = DOI_URL.call(userName, password, doiId).text
-                    def resultStr = url.text
-                    Node node
-                    try {
-                        node = new XmlParser().parseText(resultStr);
-                        def bodyQuery = node.query_result.body.query
-                        if (bodyQuery["@status"].text() == 'resolved') {
-                            def ezDoiJournal = new EzDoiJournal()
-                            ezDoiJournal.journalTitle = truncateValue(bodyQuery.journal_title.text())
-                            ezDoiJournal.articleTitle = truncateValue(bodyQuery.article_title.text())
-                            ezDoiJournal.doi = doiId
-                            doi.resolvableDoi = true
-                            ezDoiJournal.save(failOnError: true)
-                        } else {
-                            doi.resolvableDoi = false
-                        }
-                        doi.save(failOnError: true)
-                    } catch (SAXParseException e) {
-                        log.error("Could not parse doi ${doi.doi} with url from ${url} ${resultStr}", e)
-                    }
-                }
-
-            }
+        void testStats() {
+            assert total == alreadyExsists + resolved + unresolved
         }
-    }
-
-    private static truncateValue(val){
-        if(val != null && val.length() > TITLE_SIZE)
-            return val.substring(0, TITLE_SIZE)
-        else
-            return val
     }
 }
