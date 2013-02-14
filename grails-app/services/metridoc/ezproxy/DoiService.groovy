@@ -36,9 +36,22 @@ class DoiService {
                     doi.resolvableDoi = true
                     stats.alreadyExsists ++
                 } else {
-
                     def url = createCrossRefUrl(userName, password, doiId)
                     def resultStr = url.text
+                    if (resultStr.contains("The login you supplied is not recognized")) {
+                        def invalidCrossRefLogin = "Invalid CrossRef login"
+                        def exception = new RuntimeException(invalidCrossRefLogin)
+                        log.error("Invalid CrossRef login", exception)
+                        throw exception
+                    }
+
+                    if(resultStr.contains("Malformed DOI")) {
+                        doi.resolvableDoi = false
+                        stats.unresolved ++
+                        log.warn("The doi ${doiId} is malformed")
+                        return
+                    }
+
                     Node node
                     try {
                         def result = parseXml(resultStr)
@@ -53,6 +66,10 @@ class DoiService {
                             doi.resolvableDoi = false
                             stats.unresolved ++
                             log.warn("CrossRef did not have information for doi ${doiId} using url ${url}")
+                        } else if (status == 'malformed') {
+                            doi.resolvableDoi = false
+                            stats.unresolved ++
+                            log.warn("The doi ${doiId} is malformed")
                         } else {
                             throw new RuntimeException("Unexpected response occurred from CrossRef, should have a status of resolved or unresolved")
                         }
