@@ -11,7 +11,7 @@ class EzproxyDoiJob extends MetridocJob {
     static TEN_MINUTES = 1000 * 60 * 10
     final static TRIGGER_NAME = "resolve dois"
     def doiService
-    int doiResolutionSize = 100
+    int doiResolutionSize = 2000
     def ezproxyService
     def quartzScheduler
 
