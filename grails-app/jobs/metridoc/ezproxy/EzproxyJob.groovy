@@ -7,9 +7,11 @@ class EzproxyJob extends MetridocJob {
 
     static TEN_MINUTES = 1000 * 60 * 10
     def ezproxyService
+    def doiService
     def gormEzproxyFileService
     final static TRIGGER_NAME = "parse ezproxy files"
     def quartzScheduler
+    int doiResolutionSize = 2000
 
     static triggers = {
         simple repeatInterval: TEN_MINUTES, name: TRIGGER_NAME
@@ -64,6 +66,13 @@ class EzproxyJob extends MetridocJob {
 
         target(default: "runs maintenance and processes ezproxy files") {
             depends("ezMaintenance", "processingEzproxyFiles")
+        }
+
+        target(default:"resolving ezproxy dois"){
+            def stats = doiService.populateDoiInformation(doiResolutionSize)
+            //failure will occurr if stats are wrong
+            stats.testStats()
+            log.info "ezproxy doi resolution completed with the following stats: ${stats}"
         }
     }
 }
