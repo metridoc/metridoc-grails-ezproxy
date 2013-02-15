@@ -57,7 +57,7 @@ class DoiService {
                         throw exception
                     }
 
-                    if(resultStr.contains("Malformed DOI")) {
+                    if (resultStr.contains("Malformed DOI")) {
                         unresolvable(stats, doi)
                         log.warn("The doi ${doiId} is malformed")
                         return
@@ -71,7 +71,8 @@ class DoiService {
                             def ezDoiJournal = new EzDoiJournal(result)
                             ezDoiJournal.doi = doiId
                             try {
-                                ezDoiJournal.save(failOnError: true)
+                                //since we use it in the lookup above, we must flush it
+                                ezDoiJournal.save(failOnError: true, flush: true)
                                 resolvable(stats, doi)
                             } catch (SQLException e) {
                                 log.warn("Could not store information for doi ${doiId} into database, marking doi as unresolvable subsequant runs will not fail")
@@ -79,7 +80,7 @@ class DoiService {
                                 def doiWithError = EzDoi.get(id)
                                 doiWithError.resolvableDoi = false
                                 doiWithError.storageError = true
-                                doiWithError.save(flush:  true)
+                                doiWithError.save(flush: true)
                                 throw e
                             }
                         } else if (status == 'unresolved') {
@@ -92,8 +93,8 @@ class DoiService {
                             throw new RuntimeException("Unexpected response occurred from CrossRef, should have a status of resolved or unresolved")
                         }
                         doi.save(failOnError: true)
-                    } catch(SAXParseException saxException) {
-                        if(resultStr.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
+                    } catch (SAXParseException saxException) {
+                        if (resultStr.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
                             log.warn("xml for ${doiId} is invalid, considering doi unresolved despite getting a response, the xml was ${resultStr}", saxException)
                             unresolvable(stats, doi)
                         } else {
@@ -154,7 +155,7 @@ class DoiService {
         result.journalTitle = truncateValue(bodyQuery.journal_title.text())
         result.articleTitle = truncateValue(getItem(bodyQuery.article_title))
 
-        multiValueSearch(bodyQuery.year as NodeList, "media_type", result) {Integer.valueOf(it)}
+        multiValueSearch(bodyQuery.year as NodeList, "media_type", result) { Integer.valueOf(it) }
         multiValueSearch(bodyQuery.issn as NodeList, "type", result)
         multiValueSearch(bodyQuery.isbn as NodeList, "type", result)
 
@@ -166,7 +167,7 @@ class DoiService {
     }
 
     private static void multiValueSearch(NodeList items, String typeAttribute, Map result, Closure closure) {
-        items.each {Node it ->
+        items.each { Node it ->
             QName name = it.name()
             def localName = name.localPart.capitalize()
             def usedAttribute = "@$typeAttribute"
@@ -186,8 +187,8 @@ class DoiService {
         item.text() ?: null
     }
 
-    private static truncateValue(val){
-        if(val != null && val.length() > EzDoiJournal.TITLE_SIZE)
+    private static truncateValue(val) {
+        if (val != null && val.length() > EzDoiJournal.TITLE_SIZE)
             return val.substring(0, EzDoiJournal.TITLE_SIZE)
         else
             return val
