@@ -52,16 +52,4 @@ class EzDoiJournal {
     static mapping = {
 
     }
-
-    @ToString(includeNames = true)
-    public static class DoiStats {
-        int total = 0
-        int alreadyExsists = 0
-        int resolved = 0
-        int unresolved = 0
-
-        void testStats() {
-            assert total == alreadyExsists + resolved + unresolved
-        }
-    }
 }

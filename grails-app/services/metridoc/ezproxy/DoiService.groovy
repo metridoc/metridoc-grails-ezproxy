@@ -3,6 +3,7 @@ package metridoc.ezproxy
 import groovy.transform.ToString
 import groovy.xml.QName
 import org.springframework.util.Assert
+import org.xml.sax.SAXParseException
 
 import static org.apache.commons.lang.StringUtils.EMPTY
 
@@ -59,9 +60,15 @@ class DoiService {
                         if (status == 'resolved') {
                             def ezDoiJournal = new EzDoiJournal(result)
                             ezDoiJournal.doi = doiId
-                            doi.resolvableDoi = true
-                            ezDoiJournal.save(failOnError: true)
-                            stats.resolved ++
+                            try {
+                                ezDoiJournal.save(failOnError: true)
+                                stats.resolved ++
+                                doi.resolvableDoi = true
+                            } catch (Exception e) {
+                                log.warn("Could not store information for doi ${doiId} into database, marking doi as unresolvable", e)
+                                doi.resolvableDoi = false
+                                stats.unresolved ++
+                            }
                         } else if (status == 'unresolved') {
                             doi.resolvableDoi = false
                             stats.unresolved ++
@@ -74,6 +81,16 @@ class DoiService {
                             throw new RuntimeException("Unexpected response occurred from CrossRef, should have a status of resolved or unresolved")
                         }
                         doi.save(failOnError: true)
+                    } catch(SAXParseException saxException) {
+                        if(resultStr.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
+                            log.warn("xml for ${doiId} is invalid, considering doi unresolved despite getting a response, the xml was ${resultStr}", saxException)
+                            doi.resolvableDoi = false
+                            stats.unresolved ++
+                        } else {
+                            log.warn("unparsable response for doi ${doiId}, considering it unresolvable.  The response was ${resultStr}", saxException)
+                            doi.resolvableDoi = false
+                            stats.unresolved ++
+                        }
                     } catch (Exception e) {
                         log.error("Could not parse doi ${doi.doi} with url from ${url} and response ${resultStr}", e)
                         throw e
