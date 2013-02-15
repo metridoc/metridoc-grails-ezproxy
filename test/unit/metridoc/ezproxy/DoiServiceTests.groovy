@@ -12,6 +12,9 @@ import org.junit.*
 @Mock(EzParserProperties)
 class DoiServiceTests {
 
+    def stats = new DoiService.DoiStats()
+    def ezDoi = new EzDoi()
+
     @Test
     void "test url construction based on user name and password"() {
         def url = DoiService.createCrossRefUrl("foo", "bar", "10.1111/(ISSN)1468-3083")
@@ -48,6 +51,21 @@ class DoiServiceTests {
         assert "13652133" == values.electronicIssn
         assert "123123" == values.printIsbn
         assert "123123" == values.electronicIsbn
+    }
+
+    @Test
+    void "resolvable increments resolvable and makes doi resolvable"() {
+
+        DoiService.resolvable(stats, ezDoi)
+        assert 1 == stats.resolved
+        assert ezDoi.resolvableDoi
+    }
+
+    @Test
+    void "unresolvable increments unresolvable and makes doi unresolvable"() {
+        DoiService.unresolvable(stats, ezDoi)
+        assert 1 == stats.unresolved
+        assert !ezDoi.resolvableDoi
     }
 
     @Test

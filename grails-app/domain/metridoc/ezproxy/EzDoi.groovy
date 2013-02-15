@@ -10,6 +10,7 @@ class EzDoi extends EzproxyBase<EzDoi> {
     public static final EZ_DOI_ONE_TO_ONE
     Boolean resolvableDoi = false
     Boolean processedDoi = false
+    Boolean storageError = false
     public static final DOI_PREFIX_PATTERN = "10."
     public static final DOI_PROPERTY_PATTERN = "doi=10."
     public static final APACHE_NULL = "-"

@@ -5,6 +5,8 @@ import groovy.xml.QName
 import org.springframework.util.Assert
 import org.xml.sax.SAXParseException
 
+import java.sql.SQLException
+
 import static org.apache.commons.lang.StringUtils.EMPTY
 
 class DoiService {
@@ -13,6 +15,16 @@ class DoiService {
     static String ENCODING = "utf-8"
     private static final String NULL_MESSAGE = { String item ->
         "$item cannot be null or blank"
+    }
+
+    private static void resolvable(DoiStats stats, EzDoi doi) {
+        stats.resolved++
+        doi.resolvableDoi = true
+    }
+
+    private static void unresolvable(DoiStats stats, EzDoi doi) {
+        stats.unresolved++
+        doi.resolvableDoi = false
     }
 
     DoiStats populateDoiInformation(int amountToResolve) {
@@ -34,8 +46,7 @@ class DoiService {
                 def journal = EzDoiJournal.findByDoi(doiId)
                 doi.processedDoi = true
                 if (journal) {
-                    doi.resolvableDoi = true
-                    stats.alreadyExsists ++
+                    resolvable(stats, doi)
                 } else {
                     def url = createCrossRefUrl(userName, password, doiId)
                     def resultStr = url.text
@@ -47,8 +58,7 @@ class DoiService {
                     }
 
                     if(resultStr.contains("Malformed DOI")) {
-                        doi.resolvableDoi = false
-                        stats.unresolved ++
+                        unresolvable(stats, doi)
                         log.warn("The doi ${doiId} is malformed")
                         return
                     }
@@ -62,20 +72,21 @@ class DoiService {
                             ezDoiJournal.doi = doiId
                             try {
                                 ezDoiJournal.save(failOnError: true)
-                                stats.resolved ++
-                                doi.resolvableDoi = true
-                            } catch (Exception e) {
-                                log.warn("Could not store information for doi ${doiId} into database, marking doi as unresolvable", e)
-                                doi.resolvableDoi = false
-                                stats.unresolved ++
+                                resolvable(stats, doi)
+                            } catch (SQLException e) {
+                                log.warn("Could not store information for doi ${doiId} into database, marking doi as unresolvable subsequant runs will not fail")
+                                def id = doi.id
+                                def doiWithError = EzDoi.get(id)
+                                doiWithError.resolvableDoi = false
+                                doiWithError.storageError = true
+                                doiWithError.save(flush:  true)
+                                throw e
                             }
                         } else if (status == 'unresolved') {
-                            doi.resolvableDoi = false
-                            stats.unresolved ++
+                            unresolvable(stats, doi)
                             log.warn("CrossRef did not have information for doi ${doiId} using url ${url}")
                         } else if (status == 'malformed') {
-                            doi.resolvableDoi = false
-                            stats.unresolved ++
+                            unresolvable(stats, doi)
                             log.warn("The doi ${doiId} is malformed")
                         } else {
                             throw new RuntimeException("Unexpected response occurred from CrossRef, should have a status of resolved or unresolved")
@@ -84,17 +95,20 @@ class DoiService {
                     } catch(SAXParseException saxException) {
                         if(resultStr.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
                             log.warn("xml for ${doiId} is invalid, considering doi unresolved despite getting a response, the xml was ${resultStr}", saxException)
-                            doi.resolvableDoi = false
-                            stats.unresolved ++
+                            unresolvable(stats, doi)
                         } else {
                             log.warn("unparsable response for doi ${doiId}, considering it unresolvable.  The response was ${resultStr}", saxException)
-                            doi.resolvableDoi = false
-                            stats.unresolved ++
+                            unresolvable(stats, doi)
                         }
+                    } catch (SQLException sqlException) {
+                        //just throw it without logging since it is already taken care of
+                        throw sqlException
                     } catch (Exception e) {
-                        log.error("Could not parse doi ${doi.doi} with url from ${url} and response ${resultStr}", e)
+                        log.error("Could not parse doi ${doi.doi} with url from ${url} and response ${resultStr}")
                         throw e
                     }
+
+
                 }
 
             }
