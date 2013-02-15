@@ -64,15 +64,16 @@ class EzproxyJob extends MetridocJob {
             }
         }
 
-        target(default: "runs maintenance and processes ezproxy files") {
-            depends("ezMaintenance", "processingEzproxyFiles")
-        }
-
-        target(default:"resolving ezproxy dois"){
+        target(resolveEzproxyDois: "resolving ezproxy dois") {
             def stats = doiService.populateDoiInformation(doiResolutionSize)
             //failure will occurr if stats are wrong
             stats.testStats()
             log.info "ezproxy doi resolution completed with the following stats: ${stats}"
         }
+
+        target(default: "runs maintenance and processes ezproxy files and dois") {
+            depends("ezMaintenance", "processingEzproxyFiles", "resolveEzproxyDois")
+        }
+
     }
 }
