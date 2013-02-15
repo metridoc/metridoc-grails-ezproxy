@@ -197,7 +197,6 @@ class EzproxyService {
     def getJobKeys() {
         [
                 new JobKey(EzproxyJob.class.name),
-                new JobKey(EzproxyDoiJob.class.name)
         ]
     }
 
