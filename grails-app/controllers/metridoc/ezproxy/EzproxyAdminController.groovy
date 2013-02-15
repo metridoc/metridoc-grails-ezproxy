@@ -30,7 +30,7 @@ class EzproxyAdminController {
                 ezproxyFileFilter: instance.fileFilter,
                 ezproxyJobIsActive: instance.jobActivated,
                 crossRefUserName: instance.crossRefUserName,
-                crossRefPassword: instance.crossRefPassword
+                crossRefPassword: EzParserProperties.decryptedCrossRefPassword
         ]
 
         if (ezproxyService.parserException) {
