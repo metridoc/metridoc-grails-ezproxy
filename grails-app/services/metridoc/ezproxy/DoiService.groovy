@@ -57,6 +57,7 @@ class DoiService {
                         log.warn("Error occurred trying to extract info from $url", ioException)
                         unresolvable(stats, doi)
                         doi.error = true
+                        return
                     }
                     if (resultStr.contains("The login you supplied is not recognized")) {
                         def invalidCrossRefLogin = "Invalid CrossRef login"
