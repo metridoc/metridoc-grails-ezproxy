@@ -2,7 +2,7 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 //location of the release repository
-grails.project.repos.metridocRepo.url = "svn:https://metridoc.googlecode.com/svn/trunk/maven/repository"
+grails.project.repos.metridocRepo.url = "svn:https://metridoc.googlecode.com/svn/maven/repository"
 //name of the repository
 grails.project.repos.default = "metridocRepo"
 
@@ -22,7 +22,7 @@ grails.project.dependency.resolution = {
         grailsCentral()
         mavenCentral()
         mavenRepo "https://oss.sonatype.org/content/repositories/snapshots"
-        mavenRepo "https://metridoc.googlecode.com/svn/trunk/maven/repository"
+        mavenRepo "https://metridoc.googlecode.com/svn/maven/repository"
     }
     dependencies {
         //this is only needed to make things work in intellij, it won't be included in the built war or running application

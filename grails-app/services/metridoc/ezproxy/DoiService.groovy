@@ -48,8 +48,16 @@ class DoiService {
                 if (journal) {
                     resolvable(stats, doi)
                 } else {
+
                     def url = createCrossRefUrl(userName, password, doiId)
-                    def resultStr = url.text
+                    def resultStr
+                    try {
+                        resultStr = url.text
+                    } catch (IOException ioException) {
+                        log.warn("Error occurred trying to extract info from $url", ioException)
+                        unresolvable(stats, doi)
+                        doi.error = true
+                    }
                     if (resultStr.contains("The login you supplied is not recognized")) {
                         def invalidCrossRefLogin = "Invalid CrossRef login"
                         def exception = new RuntimeException(invalidCrossRefLogin)
@@ -94,13 +102,7 @@ class DoiService {
                         }
                         doi.save(failOnError: true)
                     } catch (SAXParseException saxException) {
-                        if (resultStr.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
-                            log.warn("xml for ${doiId} is invalid, considering doi unresolved despite getting a response, the xml was ${resultStr}", saxException)
-                            unresolvable(stats, doi)
-                        } else {
-                            log.warn("unparsable response for doi ${doiId}, considering it unresolvable.  The response was ${resultStr}", saxException)
-                            unresolvable(stats, doi)
-                        }
+                        handleSaxError(resultStr, stats, doi, saxException)
                     } catch (SQLException sqlException) {
                         //just throw it without logging since it is already taken care of
                         throw sqlException
@@ -117,6 +119,17 @@ class DoiService {
 
         return stats
 
+    }
+
+    private void handleSaxError(String xml, DoiStats stats, EzDoi doi, Exception saxException) {
+        unresolvable(stats, doi)
+        def doiId = doi.doi
+        doi.error = true
+        if (xml.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
+            log.warn("xml for ${doiId} is invalid, considering doi unresolved despite getting a response, the xml was ${xml}", saxException)
+        } else {
+            log.warn("unparsable response for doi ${doiId}, considering it unresolvable.  The response was ${xml}", saxException)
+        }
     }
 
     static URL createCrossRefUrl(String userName, String password, String doi) {

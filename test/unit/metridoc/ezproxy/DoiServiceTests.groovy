@@ -1,9 +1,9 @@
 package metridoc.ezproxy
 
-
-
-import grails.test.mixin.*
-import org.junit.*
+import grails.test.mixin.Mock
+import grails.test.mixin.TestFor
+import org.junit.Test
+import org.xml.sax.SAXParseException
 
 /**
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
@@ -75,7 +75,17 @@ class DoiServiceTests {
         assert !values.containsKey("surName")
     }
 
+    @Test
+    void "test handling sax error"() {
+        def result = "<xml>some xml</xml>"
+        def stats = new DoiService.DoiStats()
+        def doi = new EzDoi()
 
+        service.handleSaxError(result, stats, doi, new Exception("oops"))
+        assert stats.unresolved == 1
+        assert doi.error
+        assert !doi.resolvableDoi
+    }
 
     void runBadInput(String userName, String password, String doi) {
         try {
