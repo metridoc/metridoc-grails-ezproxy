@@ -131,12 +131,10 @@ environments {
 }
 
 // log4j configuration
+//TEMPLATE_LOG_4J
 log4j = {
 
     appenders {
-
-
-
         rollingFile name: "file",
                 maxBackupIndex: 10,
                 maxFileSize: "1MB",
@@ -154,37 +152,15 @@ log4j = {
                 file: "${config.metridoc.home}/logs/metridoc-job.log"
     }
 
-    error 'org.codehaus.groovy.grails.web.servlet',  //  controllers
-            'org.codehaus.groovy.grails.web.pages', //  GSP
-            'org.codehaus.groovy.grails.web.sitemesh', //  layouts
-            'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
-            'org.codehaus.groovy.grails.web.mapping', // URL mapping
-            'org.codehaus.groovy.grails.commons', // core / classloading
-            'org.codehaus.groovy.grails.plugins', // plugins
-            'org.codehaus.groovy.grails.orm.hibernate', // hibernate integration
-            'org.springframework',
-            'org.hibernate',
-            'net.sf.ehcache.hibernate',
-            'org.apache',
-            'grails.util.GrailsUtil',
-            'org.grails.plugin.resource',
-            'grails.plugin.webxml.WebxmlGrailsPlugin',
-            'org.quartz',
-            'grails.plugin.quartz2',
-            'metridoc.core.DevelopmentWorkflowRunnerService',
-            'org.codehaus.groovy.grails.web.context',
-            'net.sf.ehcache'
-
     warn 'metridoc.camel',
-            'ShiroGrailsPlugin',
-            'org.quartz.core',
-            'org.codehaus.groovy.grails.scaffolding',
             'metridoc.utils.CamelUtils'
+
+    info 'metridoc'
 
     //since it it running via commandline, it is assumed that standard out is only needed
     if ("true" == System.getProperty("metridoc.job.cliOnly")) {
         root {
-            info 'stdout'
+            error 'stdout'
         }
     } else {
         if ("false" == System.getProperty("metridoc.job.loggedLogLocation", "false")) {
@@ -193,11 +169,11 @@ log4j = {
             System.setProperty("metridoc.job.loggedLogLocation", "true")
         }
         root {
-            info 'stdout', 'file'
+            error 'stdout', 'file'
         }
     }
 }
-
+//TEMPLATE_LOG_4J
 //sets the layout for all pages
 metridoc.style.layout = "main"
 

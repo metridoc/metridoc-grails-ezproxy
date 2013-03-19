@@ -67,8 +67,10 @@ class EzproxyJob extends MetridocJob {
         target(resolveEzproxyDois: "resolving ezproxy dois") {
             def stats = doiService.populateDoiInformation(doiResolutionSize)
             //failure will occurr if stats are wrong
-            stats.testStats()
-            log.info "ezproxy doi resolution completed with the following stats: ${stats}"
+            if (stats) {
+                stats.testStats()
+                log.info "ezproxy doi resolution completed with the following stats: ${stats}"
+            }
         }
 
         target(default: "runs maintenance and processes ezproxy files and dois") {

@@ -32,6 +32,11 @@ class DoiService {
         String userName = ezProperties.crossRefUserName
         String password = EzParserProperties.decryptedCrossRefPassword
 
+        if(!userName || !password) {
+            log.warn "doi crossref username and or password information has not been set, dois cannot be resolved"
+            return null
+        }
+
         def stats = new DoiStats()
         EzDoiJournal.withNewTransaction {
             def ezDois = EzDoi.findAll(max: amountToResolve) {

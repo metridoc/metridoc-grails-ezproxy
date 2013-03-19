@@ -8,13 +8,15 @@ class EzParserProperties {
     String crossRefEncryptionKey = RandomStringUtils.randomAlphanumeric(100)
     String crossRefUserName
     String crossRefPassword
-    Boolean storePatronId = false
+    Boolean storePatronId = true
+    Boolean encryptPatronInfo = true
     String fileFilter = ".*"
     String directory = EzproxyUtils.DEFAULT_FILE_LOCATION
     Boolean jobActivated = false
     String sampleLog = EzproxyUtils.DEFAULT_LOG_DATA
     String sampleParser = EzproxyUtils.DEFAULT_PARSER
     String encoding = "utf-8"
+    Boolean anonymizePatronInfo = false
     private static final EzParserProperties instance;
 
     static mapping = {

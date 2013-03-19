@@ -11,37 +11,26 @@ class GormEzproxyFileService implements EzproxyFileService {
     def grailsApplication
 
     void handleFatalError(File file, int lineNumber, Throwable error) {
-        EzproxyHosts invalidRecord = EzproxyHosts.newInstance().createDefaultInvalidRecord()
-        invalidRecord.fileName = file.name
-        invalidRecord.lineNumber = lineNumber
-        invalidRecord.validationError = error.message
-
-        if (!(error instanceof AssertionError)) {
-            invalidRecord.error = true
-        }
-
-        EzproxyHosts.withNewTransaction {
-            invalidRecord.save(failOnError: true)
-        }
-
-        if (!(error instanceof AssertionError)) {
-            throw error
-        }
-
+        throw error
     }
 
     void handleValidationError(EzproxyBase object) {
         if (object.errors.fieldErrorCount) {
             def error = object.errors.fieldErrors[0]
             def message = "Field error in object '" + error.objectName + "' on field '" + error.field +
-                    "': rejected value [" + error.rejectedValue + "]"
-            def invalidRecord = object.createDefaultInvalidRecord()
+                    "': rejected value [" + error.rejectedValue + "] with error code [" + object.errors.fieldErrors[0].code + "]"
 
+            def skip = new EzSkip(
+                    fileName: object.fileName,
+                    lineNumber: object.lineNumber,
+                    type: object.getClass().simpleName,
+                    error: message
+            )
 
-            invalidRecord.validationError = message
-            invalidRecord.save(failOnError: true)
+            skip.save(failOnError: true)
             log.warn "saved invalid record ${object} for file ${object.fileName} at line ${object.lineNumber} with validation error message: ${message}"
         } else {
+            //if it is not a field error, then something really bad happened
             object.save(failOnError: true)
         }
     }
