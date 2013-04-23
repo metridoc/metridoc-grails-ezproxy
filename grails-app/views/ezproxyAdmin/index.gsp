@@ -13,7 +13,7 @@
         <g:form name="updateEzproxyParser" class="form-horizontal">
             <md:header>Ezproxy Files</md:header>
             <br/>
-            <g:render template="/ezproxyAdmin/fileOutput" plugin="metridoc-ezproxy"/>
+            <g:render template="/ezproxyAdmin/fileOutput"/>
             <br/>
             <br/>
             <md:header>Parsed Sample Data</md:header>
@@ -24,7 +24,7 @@
                 </div>
             </g:if>
             <g:else>
-                <g:render template="/ezproxyAdmin/testData" model="${params}" plugin="metridoc-ezproxy"/>
+                <g:render template="/ezproxyAdmin/testData" model="${params}"/>
             </g:else>
             <br/>
             <br/>
