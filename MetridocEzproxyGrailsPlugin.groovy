@@ -5,11 +5,6 @@ class MetridocEzproxyGrailsPlugin {
     def grailsVersion = "2.1 > *"
     // the other plugins this plugin depends on
     def dependsOn = [:]
-    // resources that are excluded from plugin packaging
-    def pluginExcludes = [
-        "grails-app/views/error.gsp"
-    ]
-
     def title = "Metridoc Ezproxy Plugin" // Headline display name of the plugin
     def author = "Tommy Barker"
 

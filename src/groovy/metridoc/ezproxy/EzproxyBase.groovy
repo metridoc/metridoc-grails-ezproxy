@@ -38,15 +38,19 @@ abstract class EzproxyBase<T extends EzproxyBase> {
     String rank
     public static final String APACHE_NULL = "-"
 
-    T createDefaultInvalidRecord() {
+    /**
+     *
+     * @return a valid test record that is typically used for a unit / integration test
+     */
+    T createTestRecord() {
         (T) this.class.newInstance(
-                ipAddress: "ERROR",
-                urlHost: "ERROR-${RandomUtils.nextInt(100000)}",
-                url: "ERROR",
+                ipAddress: "123.123.123",
+                urlHost: "www.foo.com-${RandomUtils.nextInt(100000)}",
+                url: "www.foo.com",
                 valid: false,
                 lineNumber: lineNumber ?: -1,
-                fileName: fileName ?: "ERROR",
-                ezproxyId: (ezproxyId != null && ezproxyId.length() < 50) ? ezproxyId : "ERROR",
+                fileName: fileName ?: "foo",
+                ezproxyId: (ezproxyId != null && ezproxyId.length() < 50) ? ezproxyId : "123abc",
                 proxyDate: new Date()
         )
     }

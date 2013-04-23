@@ -19,7 +19,7 @@ class EzproxyHostsTests {
 
     @Test
     void "the default invalid record should be valid"() {
-        def invalidRecord = ezproxyHosts.createDefaultInvalidRecord()
+        def invalidRecord = ezproxyHosts.createTestRecord()
         invalidRecord.validate()
         assert invalidRecord.errors.allErrors.size() == 0
     }
@@ -76,7 +76,7 @@ class EzproxyHostsTests {
 
     @Test
     void "test already processed when item is NOT in cache but in the database"() {
-        def record = new EzproxyHosts().createDefaultInvalidRecord()
+        def record = new EzproxyHosts().createTestRecord()
         record.ezproxyId = "foo"
         record.urlHost = "http://foo.com"
         record.save()
@@ -89,14 +89,14 @@ class EzproxyHostsTests {
 
     @Test
     void "test toString"() {
-        def record = new EzproxyHosts().createDefaultInvalidRecord().toString()
+        def record = new EzproxyHosts().createTestRecord().toString()
         assert record.contains("ezproxyId")
         assert record.contains("urlHost")
     }
 
     @Test
     void "test that the default error record retains the ezproxy id"() {
-        def record = new EzproxyHosts(ezproxyId: "foo").createDefaultInvalidRecord()
+        def record = new EzproxyHosts(ezproxyId: "foo").createTestRecord()
         assert "foo" == record.ezproxyId
     }
 }

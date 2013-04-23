@@ -2,6 +2,7 @@ package metridoc.ezproxy
 
 import groovy.transform.ToString
 import groovy.xml.QName
+import org.slf4j.LoggerFactory
 import org.springframework.util.Assert
 import org.xml.sax.SAXParseException
 
@@ -11,11 +12,11 @@ import static org.apache.commons.lang.StringUtils.EMPTY
 
 class DoiService {
 
+    public static final log = LoggerFactory.getLogger(DoiService)
     static final String CROSS_REF_BASE_URL = "http://www.crossref.org/openurl/?noredirect=true&pid="
     static String ENCODING = "utf-8"
-    private static final String NULL_MESSAGE = { String item ->
-        "$item cannot be null or blank"
-    }
+    String crossRefUsername
+    String crossRefPassword
 
     private static void resolvable(DoiStats stats, EzDoi doi) {
         stats.resolved++
@@ -28,11 +29,7 @@ class DoiService {
     }
 
     DoiStats populateDoiInformation(int amountToResolve) {
-        def ezProperties = EzParserProperties.instance()
-        String userName = ezProperties.crossRefUserName
-        String password = EzParserProperties.decryptedCrossRefPassword
-
-        if(!userName || !password) {
+        if (!crossRefUsername || !crossRefPassword) {
             log.warn "doi crossref username and or password information has not been set, dois cannot be resolved"
             return null
         }
@@ -54,7 +51,7 @@ class DoiService {
                     resolvable(stats, doi)
                 } else {
 
-                    def url = createCrossRefUrl(userName, password, doiId)
+                    def url = createCrossRefUrl(crossRefUsername, crossRefPassword, doiId)
                     def resultStr
                     try {
                         resultStr = url.text
@@ -77,7 +74,6 @@ class DoiService {
                         return
                     }
 
-                    Node node
                     try {
                         def result = parseXml(resultStr)
                         def status = result.status
@@ -99,7 +95,9 @@ class DoiService {
                             }
                         } else if (status == 'unresolved') {
                             unresolvable(stats, doi)
-                            log.warn("CrossRef did not have information for doi ${doiId} using url ${url}")
+                            if (log.isDebugEnabled()) {
+                                log.debug("CrossRef did not have information for doi ${doiId} using url ${url}")
+                            }
                         } else if (status == 'malformed') {
                             unresolvable(stats, doi)
                             log.warn("The doi ${doiId} is malformed")

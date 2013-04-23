@@ -2,19 +2,15 @@ package metridoc.ezproxy
 
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
-import org.junit.Before
 import org.junit.Test
 
-/**
- * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
- */
 @TestFor(EzproxyService)
 @Mock([EzproxyHosts, EzFileMetaData, EzParserProperties])
 class EzproxyServiceTests {
 
     @Test
     void "if the hash is incorrect, the file data is deleted"() {
-        def record = new EzproxyHosts().createDefaultInvalidRecord()
+        def record = new EzproxyHosts().createTestRecord()
         def file = File.createTempFile("foo", "bar")
         service.grailsApplication = [
                 domainClasses: [EzproxyHosts]
@@ -23,7 +19,7 @@ class EzproxyServiceTests {
         record.fileName = file.name
         record.save(failOnError: true)
 
-        record = new EzproxyHosts().createDefaultInvalidRecord()
+        record = new EzproxyHosts().createTestRecord()
         record.fileName = "bar"
         record.save(failOnError: true)
 
@@ -36,58 +32,5 @@ class EzproxyServiceTests {
 
         assert 1 == EzproxyHosts.count()
         assert 0 == EzFileMetaData.count()
-    }
-
-    @Before
-    void "create a mock quartzScheduler"() {
-        service.quartzScheduler = [
-                resumeJob: { jobKey -> /* do nothing */ }
-        ]
-    }
-
-    @Test
-    void "should only rebuild parser if parser text has changed"() {
-        service.parserText = "foo"
-        assert service.shouldRebuildParser("bar")
-        assert !service.shouldRebuildParser("foo")
-    }
-
-    @Test
-    void "creating a parser to parse data should be executable"() {
-        def template = { parserText ->
-            """
-            class EzproxyParser {
-                    def applicationContext
-                    def parse(line, lineNumber, fileName) {
-                        def result = [:] as TreeMap
-                        result.lineNumber = lineNumber
-                        result.fileName = fileName
-                        ${parserText}
-
-                        return result
-                    }
-            }
-        """
-        }
-
-        service.applicationContext = "placeholder"
-        def parser = service.buildParser("result.foo = line", template);
-        assert parser.applicationContext == "placeholder"
-        def result = parser.parse("foobar", 2, "bar")
-        assert "foobar" == result.foo
-        assert 2 == result.lineNumber
-        assert "bar" == result.fileName
-    }
-
-    @Test
-    void "the job is not active by default"() {
-        assert !service.isJobActive()
-    }
-
-    @Test
-    void "activating the job will toggle the the ezproperty to true"() {
-        assert !service.isJobActive()
-        service.activateEzproxyJob()
-        assert service.isJobActive()
     }
 }

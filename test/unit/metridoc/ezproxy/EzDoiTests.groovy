@@ -9,8 +9,8 @@ class EzDoiTests {
 
     @Test
     void "default invalid record should be valid if inserted twice"() {
-        new EzDoi().createDefaultInvalidRecord().save()
-        new EzDoi().createDefaultInvalidRecord().save()
+        new EzDoi().createTestRecord().save()
+        new EzDoi().createTestRecord().save()
     }
 
     @Test
@@ -38,7 +38,7 @@ class EzDoiTests {
 
     @Test
     void "invalid record should be valid"() {
-        def invalidRecord = new EzDoi().createDefaultInvalidRecord()
+        def invalidRecord = new EzDoi().createTestRecord()
         invalidRecord.validate()
         assert invalidRecord.errors.allErrors.size() == 0
     }
@@ -59,7 +59,7 @@ class EzDoiTests {
     void "test aready processed"() {
         def cache = [:]
         assert false == new EzDoi().alreadyProcessed(cache, "foo", "doi", "10.1234")
-        def ezDoi =  new EzDoi().createDefaultInvalidRecord()
+        def ezDoi = new EzDoi().createTestRecord()
         ezDoi.doi = "10.1212"
         ezDoi.ezproxyId = "foo"
         ezDoi.save(failOnError: true)

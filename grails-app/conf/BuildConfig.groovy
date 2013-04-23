@@ -25,17 +25,12 @@ grails.project.dependency.resolution = {
         mavenRepo "https://metridoc.googlecode.com/svn/maven/repository"
     }
     dependencies {
-        //this is only needed to make things work in intellij, it won't be included in the built war or running application
-        build("org.tmatesoft.svnkit:svnkit:1.3.5") {
-            excludes "jna", "trilead-ssh2", "sqljet"
-        }
         compile("org.jasypt:jasypt:1.9.0")
         build("com.google.code.maven-svn-wagon:maven-svn-wagon:1.4")
-        build('org.apache.maven:maven-ant-tasks:2.1.3')
     }
 
     plugins {
-        compile(":metridoc-core:0.54-SNAPSHOT")
+        compile(":metridoc-core:0.54.3")
         runtime ":hibernate:$grailsVersion"
         build(":tomcat:$grailsVersion",
                 ":release:$grailsVersion",

@@ -33,14 +33,14 @@
     table-layout: fixed;
 }
 
-#ezproxyParserContainer table td{
+#ezproxyParserContainer table td {
     overflow: hidden; /* this is what fixes the expansion */
     text-overflow: ellipsis; /* not supported in all browsers, but I accepted the tradeoff */
     white-space: nowrap;
 }
 
 .ezproxyData {
-    overflow:auto;
+    overflow: auto;
     max-height: 400px;
 
 }
@@ -55,26 +55,49 @@
     padding-top: 10px;
 }
 
-
-
 .ui-menu {
-    position: absolute; width: 100px;
+    position: absolute;
+    width: 100px;
     z-index: 100;
 }
 
 /* basic positioning */
-.legend { list-style: none; }
-.legend li { float: left; margin-right: 10px; }
-.legend span { border: 1px solid #ccc; float: left; width: 12px; height: 12px; margin: 2px; }
-/* your colors */
-.legend .available { background-color: black; }
-.legend .done { background-color: green; }
-.legend .changed { background-color: yellow; }
-.legend .error { background-color: red; }
+.legend {
+    list-style: none;
+}
 
+.legend li {
+    float: left;
+    margin-right: 10px;
+}
+
+.legend span {
+    border: 1px solid #ccc;
+    float: left;
+    width: 12px;
+    height: 12px;
+    margin: 2px;
+}
+
+/* your colors */
+.legend .available {
+    background-color: black;
+}
+
+.legend .done {
+    background-color: green;
+}
+
+.legend .changed {
+    background-color: yellow;
+}
+
+.legend .error {
+    background-color: red;
+}
 
 .doneFile {
-    color:green;
+    color: green;
 }
 
 .errorFile {
@@ -90,4 +113,8 @@ pre {
 #sampleLog, #sampleParser {
     width: 850px;
     height: 150px;
+}
+
+.CodeMirror {
+    height: 500px;
 }

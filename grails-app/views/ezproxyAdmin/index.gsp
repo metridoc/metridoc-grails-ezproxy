@@ -11,82 +11,31 @@
 
     <span id="ezproxyParserContainer">
         <g:form name="updateEzproxyParser" class="form-horizontal">
-            <md:header>General Settings</md:header>
-
-            <div class="control-group">
-                <label for="ezproxyDirectory" class="control-label">Ezproxy Directory:</label>
-
-                <div class="controls">
-                    <input class="userInput" id="ezproxyDirectory" type="text" name="directory"
-                           value="${ezproxyDirectory}"/>
+            <md:header>Ezproxy Files</md:header>
+            <br/>
+            <g:render template="/ezproxyAdmin/fileOutput"/>
+            <br/>
+            <br/>
+            <md:header>Parsed Sample Data</md:header>
+            <br/>
+            <g:if test="${parseException}">
+                <div class="alert alert-block alert-error">
+                    <pre>${ExceptionUtils.getFullStackTrace(parseException)}</pre>
                 </div>
-
-                <label for="ezproxyFileRegex" class="control-label">Ezproxy File Regex:</label>
-
-                <div class="controls">
-                    <input class="userInput" id="ezproxyFileRegex" type="text" name="fileFilter"
-                           value="${ezproxyFileFilter}"/>
-                </div>
-
-                <label for="crossRefUserName" class="control-label">CrossRef User Name:</label>
-
-                <div class="controls">
-                    <input class="userInput" id="crossRefUserName" type="text" name="crossRefUserName"
-                           value="${crossRefUserName}"/>
-                </div>
-
-                <label for="crossRefPassword" class="control-label">CrossRef Password:</label>
-
-                <div class="controls">
-                    <input class="userInput" id="crossRefPassword" type="password" name="crossRefPassword"
-                           value="${crossRefPassword}"/>
-                </div>
-
-                <div class="controls">
-                    <button type="submit" class="btn" name="_action_updateEzproxyParser">Update</button>
-                    <g:if test="${ezproxyJobIsActive}">
-                        <button type="submit" class="btn" name="_action_deactivateJob">Deactivate job</button>
-                    </g:if>
-                    <g:else>
-                        <button type="submit" class="btn" name="_action_activateJob">Activate Job</button>
-                    </g:else>
-                </div>
-
-                <br/>
-                <br/>
-
-                <g:render template="/ezproxyAdmin/fileOutput" plugin="metridoc-ezproxy"/>
+            </g:if>
+            <g:else>
+                <g:render template="/ezproxyAdmin/testData" model="${params}"/>
+            </g:else>
+            <br/>
+            <br/>
 
 
-                <br/>
-                <br/>
-                <md:header>Paste Sample Ezproxy Data</md:header>
-                <textarea id="sampleLog" name="sampleLog" class="code-box">${rawSampleData}</textarea>
+            <md:header>Ezproxy Configuration</md:header>
 
-                <br/>
-                <br/>
-                <md:header>Ezproxy Parser</md:header>
-                <textarea id="sampleParser" class="code-box"
-                          name="sampleParser">${ezproxyParser}</textarea>
-
-                <g:if test="${parseException}">
-                    <div class="alert alert-block alert-error">
-                        <pre>${ExceptionUtils.getFullStackTrace(parseException)}</pre>
-                    </div>
-                </g:if>
-                <g:else>
-                    <g:render template="/ezproxyAdmin/testData" model="${params}" plugin="metridoc-ezproxy"/>
-                </g:else>
-                <br/>
-
-                <button type="submit" class="btn" name="_action_updateEzproxyParser">Update</button>
-                <g:if test="${ezproxyJobIsActive}">
-                    <button type="submit" class="btn" name="_action_deactivateJob">Deactivate job</button>
-                </g:if>
-                <g:else>
-                    <button type="submit" class="btn" name="_action_activateJob">Activate Job</button>
-                </g:else>
-            </div>
+            <g:textArea name="config" id="code" value="${config}"/>
+            <br/>
+            <button type="submit" class="btn" name="_action_updateEzproxyParser">Save Changes</button>
+            <button type="submit" class="btn" name="_action_resetEzproxyConfig">Reset Config</button>
 
         </g:form>
     </span>

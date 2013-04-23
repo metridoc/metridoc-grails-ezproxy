@@ -2,116 +2,16 @@ package metridoc.ezproxy
 
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.IOUtils
-import org.quartz.JobKey
 
 /**
  * base ezproxy service that handles maintaining / storing parsers and raw data
  */
 class EzproxyService {
 
+    static final String EZPROXY_CONFIG_TEMPLATE = "ezproxyConfig.gtmpl"
     def grailsApplication
-    def parserText
-    def parserObject
-    def parserException
-    def quartzScheduler
-    def _applicationContext
-
-    static final JOB_ACTIVE_PROPERTY_NAME = "metridoc.ezproxy.job.enabled"
-
-    def getApplicationContext() {
-        if (_applicationContext) {
-            return _applicationContext
-        }
-
-        _applicationContext = grailsApplication?.mainContext
-    }
-
-    void setApplicationContext(def _applicationContext) {
-        this._applicationContext = _applicationContext
-    }
-
-    def getRawSampleData() {
-        return EzParserProperties.instance().sampleLog
-    }
-
-    def getRawParser() {
-        return EzParserProperties.instance().sampleParser
-    }
-
-    def updateParser(parserText) {
-        def instance = EzParserProperties.instance()
-        instance.sampleParser = parserText
-        instance.save()
-    }
-
-    def updateSampleData(rawData) {
-        def instance = EzParserProperties.instance()
-        instance.sampleLog = rawData
-        instance.save()
-    }
-
-    def hasParser() {
-        EzParserProperties.instance().sampleParser ? true : false
-    }
-
-    def hasData() {
-        EzParserProperties.instance().sampleLog ? true : false
-    }
-
-    def getParsedData() {
-
-        def parserObject = getParserObject()
-        def results = [:]
-        results.rows = []
-        results.headers = []
-
-        getRawSampleData().eachLine { line, lineNumber ->
-            def row = parserObject.parse(line, lineNumber + 1, "ezproxy.file") as Map
-            if (!results.headers) {
-                results.headers = row.keySet()
-            }
-            results.rows << row.values()
-        }
-
-        return results
-    }
-
-    def getParserObject() {
-        parserException = null
-        def storedText = EzParserProperties.instance().sampleParser
-
-        if (storedText) {
-            if (shouldRebuildParser(storedText)) {
-                parserText = storedText
-                try {
-                    rebuildParser(storedText)
-                } catch (Throwable t) {
-                    parserText = null
-                    throw t
-                }
-            }
-        }
-
-        return parserObject
-    }
-
-    def rebuildParser(String parserText) {
-        def parserTemplate = EzproxyUtils.DEFAULT_PARSER_TEMPLATE
-        parserObject = buildParser(parserText, parserTemplate)
-    }
-
-    def buildParser(String parserText, Closure parserTemplate) {
-        String code = parserTemplate.call(parserText)
-        def classLoader = Thread.currentThread().contextClassLoader
-        def parser = new GroovyClassLoader(classLoader).parseClass(code).newInstance()
-        parser.applicationContext = applicationContext
-
-        return parser
-    }
-
-    def shouldRebuildParser(String storedparser) {
-        parserText != storedparser
-    }
+    String ezproxyDirectory
+    String ezproxyFileFilter
 
     def getEzproxyFiles() {
         def result = []
@@ -145,67 +45,6 @@ class EzproxyService {
         return result
     }
 
-    def getEzproxyFileFilter() {
-        EzParserProperties.instance().fileFilter
-    }
-
-    def getEzproxyDirectory() {
-        EzParserProperties.instance().directory
-    }
-
-    def getStorePatronId() {
-        EzParserProperties.instance().storePatronId
-    }
-
-    def updateFileFilter(String newFileFilter) {
-        def instance = EzParserProperties.instance()
-        instance.fileFilter = newFileFilter
-        instance.save()
-    }
-
-    def updateDirectory(String newEzproxyDirectory) {
-        def instance = EzParserProperties.instance()
-        instance.directory = newEzproxyDirectory
-        instance.save()
-    }
-
-    def isJobActive() {
-        EzParserProperties.instance().jobActivated
-    }
-
-    def activateEzproxyJob() {
-        if (!isJobActive()) {
-            log.info "activating ezproxy job"
-            setActiveJobProperty(true)
-            jobKeys.each {
-                quartzScheduler.resumeJob(it)
-            }
-
-        }
-    }
-
-    def deactivateEzproxyJob() {
-        if (isJobActive()) {
-            log.info "pausing ezproxy job"
-            setActiveJobProperty(false)
-            jobKeys.each {
-                quartzScheduler.pauseJob(it)
-            }
-        }
-    }
-
-    def getJobKeys() {
-        [
-                new JobKey(EzproxyJob.class.name),
-        ]
-    }
-
-    private setActiveJobProperty(Boolean value) {
-        def instance = EzParserProperties.instance()
-        instance.jobActivated = value
-        instance.save()
-    }
-
     void deleteDataForFileIfHashNotCorrect(File file) {
         def stream = file.newInputStream()
         def hex = DigestUtils.sha256Hex(stream)
@@ -231,7 +70,7 @@ class EzproxyService {
             domainClasses.each {
                 def gormRecord = it.newInstance()
 
-                if (gormRecord instanceof EzproxyBase) {
+                if (gormRecord instanceof EzproxyBase || gormRecord instanceof EzSkip) {
                     List recordsToDelete = gormRecord.getClass().findAllByFileName(nameOfFileToDelete)
                     recordsToDelete.each {
                         it.delete()
@@ -240,11 +79,7 @@ class EzproxyService {
             }
         }
     }
-
-    void updateStorePatronId(Boolean storePatronId) {
-        def instance = EzParserProperties.instance()
-        instance.storePatronId = storePatronId
-        instance.save()
-    }
 }
+
+
 

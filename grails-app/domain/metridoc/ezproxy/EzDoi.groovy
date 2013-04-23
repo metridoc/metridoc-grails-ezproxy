@@ -60,8 +60,8 @@ class EzDoi extends EzproxyBase<EzDoi> {
     }
 
     @Override
-    EzDoi createDefaultInvalidRecord() {
-        EzDoi doi = (EzDoi) super.createDefaultInvalidRecord()
+    EzDoi createTestRecord() {
+        EzDoi doi = (EzDoi) super.createTestRecord()
         doi.processedDoi = true
         doi.doi = UUID.randomUUID().toString() //to make it unique against ezproxy_id
 
