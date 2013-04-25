@@ -4,7 +4,7 @@ class EzFileMetaData {
 
     String fileName
     String sha256
-    Boolean processing = false
+    Boolean processing = true
     Date processStarted = new Date()
 
     static mapping = {

@@ -55,13 +55,15 @@ abstract class EzproxyBase<T extends EzproxyBase> {
         )
     }
 
-    abstract void finishedFile(String fileName)
+    abstract void postProcess(String fileName)
 
     boolean accept(Map record) {
         String ezproxyId = record.ezproxyId
         def hasEzproxyId = ezproxyId != null && ezproxyId.trim() != "-" && ezproxyId.trim().size() > 1
         def hasUrl
+        //noinspection GroovyUnusedCatchParameter
         try {
+            //noinspection GroovyResultOfObjectAllocationIgnored
             new URL(record.url as String)
             hasUrl = true
         } catch (MalformedURLException ex) {
@@ -81,6 +83,7 @@ abstract class EzproxyBase<T extends EzproxyBase> {
         }
 
         addDateParameters(record)
+        //noinspection GroovyUnusedCatchParameter
         try {
             urlHost = new URL(url).host
             refUrlHost = new URL(refUrl).host

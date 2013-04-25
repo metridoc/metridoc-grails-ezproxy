@@ -30,7 +30,7 @@ class EzproxyHosts extends EzproxyBase<EzproxyHosts> {
     }
 
     @Override
-    void finishedFile(String fileName) {
+    void postProcess(String fileName) {
         hostsByEzproxyId.clear()
     }
 

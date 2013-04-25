@@ -10,6 +10,7 @@ import org.hibernate.SessionFactory
 import org.hibernate.metadata.ClassMetadata
 import org.slf4j.LoggerFactory
 
+import javax.sql.DataSource
 import java.text.SimpleDateFormat
 import java.util.zip.GZIPInputStream
 
@@ -19,6 +20,7 @@ class EzproxyJob extends MetridocJob {
     public static final String ALL_FILES = ".*"
     SessionFactory sessionFactory
 
+    @SuppressWarnings("GroovyAssignabilityCheck")
     public static final Closure<Object> DEFAULT_PARSER = {
         def data = line.split(/\|\|/)
         assert data.size() >= 14: "there should be at least 14 data fields"
@@ -32,7 +34,7 @@ class EzproxyJob extends MetridocJob {
         result.ezproxyId = data[13]
     }
 
-    List<EzproxyBase> defaultEzEntities = [EzproxyHosts, EzDoi]
+    List<EzproxyBase> defaultEzEntities = [EzproxyHosts.class, EzDoi.class] as List<EzproxyBase>
     /**
      * added any additional entities you want here
      */
@@ -76,6 +78,12 @@ class EzproxyJob extends MetridocJob {
                         def filter = getEzproxyFileFilter()
                         if (it.name ==~ filter) {
                             def fileData = EzFileMetaData.findByFileName(it.name)
+                            def now = new Date()
+
+                            if (fileData.processing && (now - fileData.processStarted) > 2) {
+                                deleteDataForFile(it.name)
+                                fileData = null
+                            }
 
                             def itemToAdd = [file: it]
                             if (fileData) {
@@ -199,7 +207,13 @@ class EzproxyJob extends MetridocJob {
 
             if (hasFilesAndParser) {
                 def fileToProcess = ezproxyFile ?: files[0].file //only load one file at a time
-                processFile(fileToProcess)
+                try {
+                    processFile(fileToProcess)
+                } catch (Exception e) {
+                    log.error "exception occurred processing file $fileToProcess, rolling back all data"
+                    deleteDataForFile(fileToProcess.name)
+                    throw e
+                }
             }
         }
 
@@ -243,10 +257,10 @@ class EzproxyJob extends MetridocJob {
         entities.add(EzSkip)
         entities.add(EzFileMetaData)
         entities.add(EzDoiJournal)
-        entities.each {
-            ClassMetadata metaData = sessionFactory.getClassMetadata(it)
+        entities.each { Class clazz ->
+            ClassMetadata metaData = sessionFactory.getClassMetadata(clazz)
             def table = metaData.tableName
-            def sql = new Sql(dataSource)
+            def sql = new Sql(dataSource as DataSource)
             String sqlQuery = tableBasedSql.call(table)
             sql.execute(sqlQuery)
         }
@@ -264,7 +278,9 @@ class EzproxyJob extends MetridocJob {
 
     void handleValidationError(EzproxyBase object) {
         if (object.errors.fieldErrorCount) {
+            //noinspection GroovyAssignabilityCheck
             def error = object.errors.fieldErrors[0]
+            //noinspection GroovyAssignabilityCheck
             def message = "Field error in object '" + error.objectName + "' on field '" + error.field +
                     "': rejected value [" + error.rejectedValue + "] with error code [" + object.errors.fieldErrors[0].code + "]"
 
@@ -328,14 +344,23 @@ class EzproxyJob extends MetridocJob {
         IOUtils.closeQuietly(streamToDigest)
 
         def fileName = file.name
+
+        try {
+            new EzFileMetaData(fileName: fileName, sha256: hex).save(failOnError: true, flush: true)
+        } catch (Throwable e) {
+            log.warn "error occurred trying to store meta data for $fileName, $fileName is probably being processed in parallel, this job will be terminated prematurely", e
+            return
+        }
+
         EzproxyHosts.withNewTransaction {
-            new EzFileMetaData(fileName: fileName, sha256: hex).save(failOnError: true)
+
             log.info "stored metaData of file $file"
             def stream = new FileInputStream(file)
             if (file.name.endsWith(".gz")) {
                 stream = new GZIPInputStream(stream)
             }
 
+            //noinspection GroovyMissingReturnStatement
             stream.eachLine(ezproxyEncoding) { String line, int lineNumber ->
                 def record = null
                 try {
@@ -353,12 +378,15 @@ class EzproxyJob extends MetridocJob {
         }
         allEntities.each {
             def instance = it.newInstance()
-            instance.finishedFile(fileName)
+            instance.postProcess(fileName)
         }
         log.info "finished processing file $file with loading stats ${getStatOutput(stats)}"
+        def ezFileMetaData = EzFileMetaData.findByFileName(fileName)
+        ezFileMetaData.processing = false
+        ezFileMetaData.save(flush: true)
     }
 
-    private String getStatOutput(Map stats) {
+    private static String getStatOutput(Map stats) {
         def builder = new StrBuilder()
         builder.appendln(StringUtils.EMPTY)
         builder.appendln("[")
@@ -373,7 +401,7 @@ class EzproxyJob extends MetridocJob {
 
         def linesLogged = [] as Set
 
-        allEntities.each { Class aClass ->
+        allEntities.each { Class<EzproxyBase> aClass ->
             EzproxyBase gormRecord = aClass.newInstance()
             def gormClassName = aClass.name
 

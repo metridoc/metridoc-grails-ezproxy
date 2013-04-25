@@ -69,7 +69,7 @@ class EzDoi extends EzproxyBase<EzDoi> {
     }
 
     @Override
-    void finishedFile(String fileName) {
+    void postProcess(String fileName) {
         doiByEzproxyId.clear()
     }
 
@@ -84,12 +84,12 @@ class EzDoi extends EzproxyBase<EzDoi> {
 
     private static boolean hasDoi(Map record) {
         String url = record.url
-        String doiAtStart = null
         int indexOfDoiPrefix = url.indexOf(DOI_PREFIX_PATTERN)
         if (indexOfDoiPrefix > -1) {
-            doiAtStart = url.substring(indexOfDoiPrefix)
+            def doiAtStart = url.substring(indexOfDoiPrefix)
+            //noinspection GroovyUnusedCatchParameter
             try {
-                doiAtStart = URLDecoder.decode(doiAtStart)
+                doiAtStart = URLDecoder.decode(doiAtStart, "utf-8")
             } catch (IllegalArgumentException ex) {
 
             }
@@ -103,6 +103,7 @@ class EzDoi extends EzproxyBase<EzDoi> {
     private static boolean urlIsAUrl(Map record) {
         String url = record.url
 
+        //noinspection GroovyUnusedCatchParameter
         try {
             new URL(url)
             return true
