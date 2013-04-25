@@ -80,9 +80,11 @@ class EzproxyJob extends MetridocJob {
                             def fileData = EzFileMetaData.findByFileName(it.name)
                             def now = new Date()
 
-                            if (fileData.processing && (now - fileData.processStarted) > 2) {
-                                deleteDataForFile(it.name)
-                                fileData = null
+                            if (fileData) {
+                                if (fileData.processing && (now - fileData.processStarted) > 2) {
+                                    deleteDataForFile(it.name)
+                                    fileData = null
+                                }
                             }
 
                             def itemToAdd = [file: it]
