@@ -47,7 +47,12 @@ class EzDoi extends EzproxyBase<EzDoi> {
         boolean hasDoi = hasDoi(record)
         if (hasEzproxyIdAndUrl && hasDoi) {
             try {
-                record.doi = extractDoi(record.url as String)
+                def extractedDoi = extractDoi(record.url as String)
+
+                if (!extractedDoi) return false
+
+                record.doi = extractedDoi
+
             } catch (Exception e) {
                 log.warn "There was an unexpected exception trying to extract the doi from ${record.url}", e
                 return false
