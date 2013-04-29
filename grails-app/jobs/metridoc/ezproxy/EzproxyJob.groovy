@@ -34,11 +34,12 @@ class EzproxyJob extends MetridocJob {
         result.ezproxyId = data[13]
     }
 
-    List<Class<EzproxyBase>> defaultEzEntities = [EzproxyHosts.class, EzDoi.class] as List<Class<EzproxyBase>>
+    List<Class<? extends EzproxyBase>> defaultEzEntities = [EzproxyHosts.class, EzDoi.class] as List
+
     /**
      * added any additional entities you want here
      */
-    List<Class<EzproxyBase>> ezEntities = []
+    List<Class<? extends EzproxyBase>> ezEntities = []
     def doiService
     def ezproxyParser = DEFAULT_PARSER
     int doiResolutionSize = 2000

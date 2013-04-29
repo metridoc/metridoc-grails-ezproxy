@@ -15,7 +15,7 @@ class EzproxyJobIntTests {
     void "when post processing, ezproxy entities should benefit from injection"() {
         def ezproxyJob = grailsApplication.mainContext.getBean("metridoc.ezproxy.EzproxyJob", EzproxyJob)
         ezproxyJob.defaultEzEntities.clear()
-        ezproxyJob.ezEntities = [EzInjectionHelper] as List<Class<EzproxyBase>>
+        ezproxyJob.ezEntities = [EzInjectionHelper] as List
         //noinspection GroovyAccessibility
         ezproxyJob.postProcessEntities("foo")
     }
