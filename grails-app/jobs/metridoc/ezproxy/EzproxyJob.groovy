@@ -34,11 +34,11 @@ class EzproxyJob extends MetridocJob {
         result.ezproxyId = data[13]
     }
 
-    List<EzproxyBase> defaultEzEntities = [EzproxyHosts.class, EzDoi.class] as List<EzproxyBase>
+    List<Class<EzproxyBase>> defaultEzEntities = [EzproxyHosts.class, EzDoi.class] as List<Class<EzproxyBase>>
     /**
      * added any additional entities you want here
      */
-    List<EzproxyBase> ezEntities = []
+    List<Class<EzproxyBase>> ezEntities = []
     def doiService
     def ezproxyParser = DEFAULT_PARSER
     int doiResolutionSize = 2000
@@ -378,14 +378,18 @@ class EzproxyJob extends MetridocJob {
                 }
             }
         }
-        allEntities.each {
-            def instance = it.newInstance()
-            instance.postProcess(fileName)
-        }
+        postProcessEntities(fileName)
         log.info "finished processing file $file with loading stats ${getStatOutput(stats)}"
         def ezFileMetaData = EzFileMetaData.findByFileName(fileName)
         ezFileMetaData.processing = false
         ezFileMetaData.save(flush: true)
+    }
+
+    private void postProcessEntities(fileName) {
+        allEntities.each {
+            def instance = it.newInstance()
+            instance.postProcess(fileName)
+        }
     }
 
     private static String getStatOutput(Map stats) {

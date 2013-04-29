@@ -1,6 +1,6 @@
 class MetridocEzproxyGrailsPlugin {
     // the plugin version
-    def version = "0.2.3"
+    def version = "0.2.4"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "2.1 > *"
     // the other plugins this plugin depends on
@@ -11,7 +11,9 @@ class MetridocEzproxyGrailsPlugin {
     def description = '''\
 Plugin to handle the ingestion of ezproxy files
 '''
-
+    def pluginExcludes = [
+            "grails-app/domain/metridoc/test/**/*",
+    ]
     // URL to the plugin's documentation
     def documentation = "http://grails.org/plugin/metridoc-ezproxy"
 
