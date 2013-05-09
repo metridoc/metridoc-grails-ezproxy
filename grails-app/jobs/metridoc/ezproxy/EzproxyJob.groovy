@@ -139,6 +139,10 @@ class EzproxyJob extends MetridocJob {
             if (data) {
                 EzFileMetaData.get(data.id).delete()
             }
+            EzSkip.findAllByFileName(nameOfFileToDelete).each { EzSkip ezSkip ->
+                EzSkip.get(ezSkip.id).delete()
+            }
+
 
             allEntities.each {
                 def gormRecord = it.newInstance()
@@ -338,6 +342,7 @@ class EzproxyJob extends MetridocJob {
     void processFile(File file, parser) {
         def stats = [:]
 
+        deleteDataForFile(file.name)
         allEntities.each { Class aClass ->
             stats[aClass.name] = [valid: 0, invalid: 0, rejected: 0]
         }
