@@ -1,8 +1,5 @@
 package metridoc.ezproxy
 
-import metridoc.core.JobDetails
-import metridoc.utils.ConfigObjectUtils
-import org.apache.commons.lang.StringUtils
 import org.springframework.core.io.ClassPathResource
 
 class EzproxyAdminController {
@@ -24,66 +21,68 @@ class EzproxyAdminController {
     ]
 
     def index() {
-        def details = JobDetails.findByJobName(EzproxyJob.name)
-        def config = details.config
-        def configNotSet = config == null || config.trim() == StringUtils.EMPTY
+//        def details = JobDetails.findByJobName(EzproxyJob.name)
+//        def config = details.config
+//        def configNotSet = config == null || config.trim() == StringUtils.EMPTY
+//
+//        if (configNotSet) {
+//            config = storeDefaultConfig(details)
+//        }
+//
+//        ConfigObject mergedConfig
+//        if (grailsApplication) {
+//            mergedConfig = ConfigObjectUtils.clone(grailsApplication.mergedConfig)
+//            def parsedConfig = new ConfigSlurper().parse(config)
+//            mergedConfig.merge(parsedConfig)
+//        }
+//
+//        def directory = mergedConfig.ezproxyDirectory
+//        if (directory) {
+//            //TODO: this is really ugly, shuold change this
+//            ezproxyService.ezproxyDirectory = directory
+//        }
+//
+//        def fileFilter = mergedConfig.ezproxyFileFilter
+//        if (fileFilter) {
+//            ezproxyService.ezproxyFileFilter = fileFilter
+//        }
+//
+//        def parseException
+//        def rows = []
+//        def headers
+//        try {
+//            def job = new EzproxyJob()
+//            def mappedData = job.getPreviewRecords(mergedConfig.ezproxySampleData as String, job.getParserObject(mergedConfig.ezproxyParser))
+//            headers = mappedData[0].keySet()
+//            mappedData.each {
+//                rows.add(it.values())
+//            }
+//        } catch (Throwable throwable) {
+//            parseException = throwable
+//        }
+//
+//        return [
+//                headers: headers,
+//                parseException: parseException,
+//                rows: rows,
+//                config: config,
+//                ezproxyDirectory: directory,
+//                ezproxyFiles: ezproxyService.ezproxyFiles
+//        ]
 
-        if (configNotSet) {
-            config = storeDefaultConfig(details)
-        }
-
-        ConfigObject mergedConfig
-        if (grailsApplication) {
-            mergedConfig = ConfigObjectUtils.clone(grailsApplication.mergedConfig)
-            def parsedConfig = new ConfigSlurper().parse(config)
-            mergedConfig.merge(parsedConfig)
-        }
-
-        def directory = mergedConfig.ezproxyDirectory
-        if (directory) {
-            //TODO: this is really ugly, shuold change this
-            ezproxyService.ezproxyDirectory = directory
-        }
-
-        def fileFilter = mergedConfig.ezproxyFileFilter
-        if (fileFilter) {
-            ezproxyService.ezproxyFileFilter = fileFilter
-        }
-
-        def parseException
-        def rows = []
-        def headers
-        try {
-            def job = new EzproxyJob()
-            def mappedData = job.getPreviewRecords(mergedConfig.ezproxySampleData as String, job.getParserObject(mergedConfig.ezproxyParser))
-            headers = mappedData[0].keySet()
-            mappedData.each {
-                rows.add(it.values())
-            }
-        } catch (Throwable throwable) {
-            parseException = throwable
-        }
-
-        return [
-                headers: headers,
-                parseException: parseException,
-                rows: rows,
-                config: config,
-                ezproxyDirectory: directory,
-                ezproxyFiles: ezproxyService.ezproxyFiles
-        ]
+        return "Not supported yet"
 
     }
 
-    private String storeDefaultConfig(JobDetails details) {
-        def configResource = new ClassPathResource(EzproxyService.EZPROXY_CONFIG_TEMPLATE)
-        def exists = configResource.exists()
-        if (exists) {
-            details.config = configResource.file.getText(CONFIG_FILE_ENCODING)
-            details.save(flush: true)
-        }
-        details.config
-    }
+//    private String storeDefaultConfig(JobDetails details) {
+//        def configResource = new ClassPathResource(EzproxyService.EZPROXY_CONFIG_TEMPLATE)
+//        def exists = configResource.exists()
+//        if (exists) {
+//            details.config = configResource.file.getText(CONFIG_FILE_ENCODING)
+//            details.save(flush: true)
+//        }
+//        details.config
+//    }
 
     def updateEzproxyParser(String config) {
 
@@ -96,7 +95,7 @@ class EzproxyAdminController {
             details.config = config
             try {
                 details.save(failOnError: true)
-            } catch (Throwable throwable) {
+            } catch (Throwable ignored) {
                 def configThrowable = JobDetails.getConfigException(config)
                 log.error("exception occurred trying to save configuration", configThrowable)
                 flash.alerts << configThrowable.message

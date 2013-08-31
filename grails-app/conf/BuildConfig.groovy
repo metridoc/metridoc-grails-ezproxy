@@ -1,18 +1,13 @@
 grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
-//location of the release repository
-grails.project.repos.metridocRepo.url = "svn:https://metridoc.googlecode.com/svn/maven/repository"
-//name of the repository
+grails.project.target.level = 1.6
+grails.project.source.level = 1.6
+grails.project.repos.metridocRepo.url = "https://api.bintray.com/maven/upennlib/metridoc/metridoc-core"
 grails.project.repos.default = "metridocRepo"
 
-
 grails.project.dependency.resolution = {
-    // inherit Grails' default dependencies
-    inherits("global") {
-        // uncomment to disable ehcache
-        // excludes 'ehcache'
-    }
+    inherits("global")
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     repositories {
         inherits true // Whether to inherit repository definitions from plugins
@@ -24,14 +19,15 @@ grails.project.dependency.resolution = {
         mavenRepo "https://oss.sonatype.org/content/repositories/snapshots"
         mavenRepo "https://metridoc.googlecode.com/svn/maven/repository"
     }
-    dependencies {
-        compile("org.jasypt:jasypt:1.9.0")
-        build("com.google.code.maven-svn-wagon:maven-svn-wagon:1.4")
-    }
 
     plugins {
-        compile(":metridoc-core:0.54.4-SNAPSHOT")
-        runtime ":hibernate:$grailsVersion"
+        //TODO: more up to date versions of the core do not require the exclusions.  remove once we update the core
+        compile(":metridoc-core:0.7.1") {
+            excludes "job-runner"
+            excludes "database-session"
+        }
+
+        runtime(":job-runner:0.6.1")
         build(":tomcat:$grailsVersion",
                 ":release:2.2.1",
                 ":rest-client-builder:1.0.2") {
