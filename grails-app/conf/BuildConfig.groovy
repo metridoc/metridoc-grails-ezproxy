@@ -33,10 +33,9 @@ grails.project.dependency.resolution = {
         compile(":metridoc-core:0.54.4-SNAPSHOT")
         runtime ":hibernate:$grailsVersion"
         build(":tomcat:$grailsVersion",
-                ":release:$grailsVersion",
+                ":release:2.2.1",
                 ":rest-client-builder:1.0.2") {
             export = false
         }
-        build ":release:$grailsVersion"
     }
 }
