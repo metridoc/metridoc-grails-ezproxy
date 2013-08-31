@@ -18,6 +18,13 @@ grails.project.dependency.resolution = {
         mavenCentral()
         mavenRepo "https://oss.sonatype.org/content/repositories/snapshots"
         mavenRepo "https://metridoc.googlecode.com/svn/maven/repository"
+        mavenRepo "http://dl.bintray.com/upennlib/metridoc"
+        mavenRepo "http://dl.bintray.com/upennlib/maven"
+        mavenRepo "http://dl.bintray.com/upennlib/camel"
+    }
+
+    dependencies {
+        compile("com.github.metridoc:metridoc-job-core:0.8-SNAPSHOT")
     }
 
     plugins {
@@ -25,11 +32,13 @@ grails.project.dependency.resolution = {
         compile(":metridoc-core:0.7.1") {
             excludes "job-runner"
             excludes "database-session"
+            excludes ([name:"metridoc-job-core", group:"com.googlecode.metridoc"])
         }
 
         runtime(":job-runner:0.6.1")
         build(":tomcat:$grailsVersion",
                 ":release:2.2.1",
+                ":squeaky-clean:0.1.1",
                 ":rest-client-builder:1.0.2") {
             export = false
         }
