@@ -17,10 +17,10 @@ cd metridoc-grails-ezproxy
 
 There are 4 available jobs
 
-*  processEzHosts - processes all unique host names based on ezproxy id
-*  processEzDois - processes all unique dois based on ezproxy ids
-*  resolveDois - resolves dois against crossref
-*  deleteEzTables - deletes all ezproxy tables.  Useful if you want to start fresh, or
+*  `processEzHosts` - processes all unique host names based on ezproxy id
+*  `processEzDois` - processes all unique dois based on ezproxy ids
+*  `resolveDois` - resolves dois against crossref
+*  `deleteEzTables` - deletes all ezproxy tables.  Useful if you want to start fresh, or
 substantial changes have occurred to the database schema after an upgrade that a fresh start is required
 
 
