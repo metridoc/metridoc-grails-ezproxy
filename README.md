@@ -2,7 +2,7 @@ WARNING - Still in heavy development
 
 This project contains both the ezproxy web and job projects.  We are in the process of moving the job
 [here](https://github.com/metridoc/metridoc-job-ezproxy) using our new scripting api, but for now both the job and view 
-reside in teh same project
+reside in the same project
 
 #### Ezproxy Job
 ================
