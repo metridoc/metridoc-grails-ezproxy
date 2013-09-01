@@ -5,6 +5,7 @@ This project contains both the ezproxy web and job projects.  We are in the proc
 reside in teh same project
 
 #### Ezproxy Job
+================
 
 The ezproxy job provides a way to parse and store ezproxy data.  The most effective way of using the job is to make sure
 your target log has items separated by one or more uncommon characters.  If this is not possible, You can either 
@@ -17,6 +18,9 @@ git clone https://github.com/metridoc/metridoc-grails-ezproxy.git
 cd metridoc-grails-ezproxy
 ```
 
+To download grails and the project dependencies, run `./grailsw --refresh-dependencies compile`.  If you haven't used
+a metridoc project, this could take quite a bit of time.  Subsequant calls should be much faster.
+
 There are 4 available jobs
 
 *  `processEzHosts` - processes all unique host names based on ezproxy id
@@ -24,6 +28,12 @@ There are 4 available jobs
 *  `resolveEzDois` - resolves dois against crossref
 *  `dropEzTables` - deletes all ezproxy tables.  Useful if you want to start fresh, or
 substantial changes have occurred to the database schema after an upgrade that a fresh start is required
+
+##### processEzHosts
+
+This job finds all unique ezproxy transactions by ezproxy id and host.
+
+
 
 
 
